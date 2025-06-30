@@ -1,0 +1,14 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Backup
+metadata:
+  name: {{ include "mariadb.fullname" . }}-backup-nfs
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.backupNfs.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  storage:
+    volume:
+      nfs:
+        server: {{ .Values.backupNfs.storage.volume.nfs.server | quote }}
+        path: {{ .Values.backupNfs.storage.volume.nfs.path | quote }}

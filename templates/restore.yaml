@@ -1,0 +1,29 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Restore
+metadata:
+  name: {{ include "mariadb.fullname" . }}-restore
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.restore.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  backupRef:
+    name: {{ .Values.restore.backupRefName | default (printf "%s-backup" (include "mariadb.fullname" .)) }}
+  inheritMetadata:
+    annotations:
+      {{- toYaml .Values.restore.inheritMetadata.annotations | nindent 6 }}
+  podMetadata:
+    labels:
+      {{- toYaml .Values.restore.podMetadata.labels | nindent 6 }}
+  serviceAccountName: {{ .Values.restore.serviceAccountName | default (printf "%s-restore" (include "mariadb.fullname" .)) }}
+  args:
+    {{- toYaml .Values.restore.args | nindent 4 }}
+  resources:
+    requests:
+      cpu: {{ .Values.restore.resources.requests.cpu | default "100m" }}
+      memory: {{ .Values.restore.resources.requests.memory | default "128Mi" }}
+    limits:
+      cpu: {{ .Values.restore.resources.limits.cpu | default "300m" }}
+      memory: {{ .Values.restore.resources.limits.memory | default "512Mi" }}
+  affinity:
+    antiAffinityEnabled: {{ .Values.restore.affinity.antiAffinityEnabled | default true }}

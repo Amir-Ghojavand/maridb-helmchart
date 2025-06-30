@@ -1,0 +1,32 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-galera
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbGalera.rootPasswordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGalera.rootPasswordSecretKeyRef.key | quote }}
+  storage:
+    size: {{ .Values.mariadbGalera.storage.size | default "1Gi" }}
+  replicas: {{ .Values.mariadbGalera.replicas | default 3 }}
+  galera:
+    enabled: {{ .Values.mariadbGalera.galera.enabled | default true }}
+  service:
+    type: {{ .Values.mariadbGalera.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGalera.service.metadata.annotations.metallb | quote }}
+  primaryService:
+    type: {{ .Values.mariadbGalera.primaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGalera.primaryService.metadata.annotations.metallb | quote }}
+  secondaryService:
+    type: {{ .Values.mariadbGalera.secondaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGalera.secondaryService.metadata.annotations.metallb | quote }}
+  metrics:
+    enabled: {{ .Values.mariadbGalera.metrics.enabled | default true }}

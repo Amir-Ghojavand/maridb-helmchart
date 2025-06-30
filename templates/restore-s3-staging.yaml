@@ -1,0 +1,32 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Restore
+metadata:
+  name: {{ include "mariadb.fullname" . }}-restore-s3-staging
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.restoreS3Staging.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  s3:
+    bucket: {{ .Values.restoreS3Staging.s3.bucket | quote }}
+    prefix: {{ .Values.restoreS3Staging.s3.prefix | quote }}
+    endpoint: {{ .Values.restoreS3Staging.s3.endpoint | quote }}
+    region: {{ .Values.restoreS3Staging.s3.region | quote }}
+    accessKeyIdSecretKeyRef:
+      name: {{ .Values.restoreS3Staging.s3.accessKeyIdSecretKeyRef.name | quote }}
+      key: {{ .Values.restoreS3Staging.s3.accessKeyIdSecretKeyRef.key | quote }}
+    secretAccessKeySecretKeyRef:
+      name: {{ .Values.restoreS3Staging.s3.secretAccessKeySecretKeyRef.name | quote }}
+      key: {{ .Values.restoreS3Staging.s3.secretAccessKeySecretKeyRef.key | quote }}
+    tls:
+      enabled: {{ .Values.restoreS3Staging.s3.tls.enabled | default true }}
+      caSecretKeyRef:
+        name: {{ .Values.restoreS3Staging.s3.tls.caSecretKeyRef.name | quote }}
+        key: {{ .Values.restoreS3Staging.s3.tls.caSecretKeyRef.key | quote }}
+  stagingStorage:
+    persistentVolumeClaim:
+      resources:
+        requests:
+          storage: {{ .Values.restoreS3Staging.stagingStorage.persistentVolumeClaim.resources.requests.storage | default "1Gi" }}
+      accessModes:
+        - {{ .Values.restoreS3Staging.stagingStorage.persistentVolumeClaim.accessModes | default "ReadWriteOnce" }}

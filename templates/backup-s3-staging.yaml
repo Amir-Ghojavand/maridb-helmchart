@@ -1,0 +1,35 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Backup
+metadata:
+  name: {{ include "mariadb.fullname" . }}-backup-s3-staging
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.backupS3Staging.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  maxRetention: {{ .Values.backupS3Staging.maxRetention | default "720h" }}
+  compression: {{ .Values.backupS3Staging.compression | default "gzip" }}
+  storage:
+    s3:
+      bucket: {{ .Values.backupS3Staging.storage.s3.bucket | quote }}
+      prefix: {{ .Values.backupS3Staging.storage.s3.prefix | quote }}
+      endpoint: {{ .Values.backupS3Staging.storage.s3.endpoint | quote }}
+      region: {{ .Values.backupS3Staging.storage.s3.region | quote }}
+      accessKeyIdSecretKeyRef:
+        name: {{ .Values.backupS3Staging.storage.s3.accessKeyIdSecretKeyRef.name | quote }}
+        key: {{ .Values.backupS3Staging.storage.s3.accessKeyIdSecretKeyRef.key | quote }}
+      secretAccessKeySecretKeyRef:
+        name: {{ .Values.backupS3Staging.storage.s3.secretAccessKeySecretKeyRef.name | quote }}
+        key: {{ .Values.backupS3Staging.storage.s3.secretAccessKeySecretKeyRef.key | quote }}
+      tls:
+        enabled: {{ .Values.backupS3Staging.storage.s3.tls.enabled | default true }}
+        caSecretKeyRef:
+          name: {{ .Values.backupS3Staging.storage.s3.tls.caSecretKeyRef.name | quote }}
+          key: {{ .Values.backupS3Staging.storage.s3.tls.caSecretKeyRef.key | quote }}
+  stagingStorage:
+    persistentVolumeClaim:
+      resources:
+        requests:
+          storage: {{ .Values.backupS3Staging.stagingStorage.persistentVolumeClaim.resources.requests.storage | default "1Gi" }}
+      accessModes:
+        - {{ .Values.backupS3Staging.stagingStorage.persistentVolumeClaim.accessModes | default "ReadWriteOnce" }}

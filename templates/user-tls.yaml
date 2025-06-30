@@ -1,0 +1,22 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: User
+metadata:
+  name: {{ include "mariadb.fullname" . }}-user-tls
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  name: {{ .Values.userTls.name | default (include "mariadb.fullname" .) }}
+  mariaDbRef:
+    name: {{ .Values.userTls.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  passwordSecretKeyRef:
+    name: {{ .Values.userTls.passwordSecretKeyRef.name | quote }}
+    key: {{ .Values.userTls.passwordSecretKeyRef.key | quote }}
+  tls:
+    enabled: {{ .Values.userTls.tls.enabled | default true }}
+    caSecretKeyRef:
+      name: {{ .Values.userTls.tls.caSecretKeyRef.name | quote }}
+      key: {{ .Values.userTls.tls.caSecretKeyRef.key | quote }}
+  host: {{ .Values.userTls.host | default '"%"' }}
+  cleanupPolicy: {{ .Values.userTls.cleanupPolicy | default "Delete" }}
+  requeueInterval: {{ .Values.userTls.requeueInterval | default "30s" }}
+  retryInterval: {{ .Values.userTls.retryInterval | default "5s" }}

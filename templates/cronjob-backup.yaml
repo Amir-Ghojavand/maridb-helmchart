@@ -1,0 +1,49 @@
+{{- if .Values.backupScheduledCR.enabled }}
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Backup
+metadata:
+  name: {{ include "mariadb.fullname" . }}-scheduled-backup
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ include "mariadb.fullname" . }}
+  schedule:
+    cron: {{ .Values.backupScheduledCR.cron | quote }}
+    suspend: {{ .Values.backupScheduledCR.suspend | default false }}
+  timeZone: {{ .Values.backupScheduledCR.timeZone | default "UTC" }}
+  maxRetention: {{ .Values.backupScheduledCR.maxRetention | default "720h" }}
+  compression: {{ .Values.backupScheduledCR.compression | default "bzip2" }}
+  storage:
+    s3:
+      bucket: {{ .Values.backupScheduledCR.s3.bucket }}
+      endpoint: {{ .Values.backupScheduledCR.s3.endpoint }}
+      accessKeyIdSecretKeyRef:
+        name: {{ .Values.backupScheduledCR.s3.accessKeyIdSecretKeyRef.name }}
+        key: {{ .Values.backupScheduledCR.s3.accessKeyIdSecretKeyRef.key }}
+      secretAccessKeySecretKeyRef:
+        name: {{ .Values.backupScheduledCR.s3.secretAccessKeySecretKeyRef.name }}
+        key: {{ .Values.backupScheduledCR.s3.secretAccessKeySecretKeyRef.key }}
+      tls:
+        enabled: {{ .Values.backupScheduledCR.s3.tls.enabled | default true }}
+        caSecretKeyRef:
+          name: {{ .Values.backupScheduledCR.s3.tls.caSecretKeyRef.name }}
+          key: {{ .Values.backupScheduledCR.s3.tls.caSecretKeyRef.key }}
+  stagingStorage:
+    persistentVolumeClaim:
+      resources:
+        requests:
+          storage: {{ .Values.backupScheduledCR.stagingStorage.size | default "10Gi" }}
+      accessModes:
+        - {{ .Values.backupScheduledCR.stagingStorage.accessMode | default "ReadWriteOnce" }}
+  args:
+    {{- toYaml .Values.backupScheduledCR.args | nindent 4 }}
+  logLevel: {{ .Values.backupScheduledCR.logLevel | default "info" }}
+  resources:
+    requests:
+      cpu: {{ .Values.backupScheduledCR.resources.requests.cpu | default "100m" }}
+      memory: {{ .Values.backupScheduledCR.resources.requests.memory | default "128Mi" }}
+    limits:
+      cpu: {{ .Values.backupScheduledCR.resources.limits.cpu | default "300m" }}
+      memory: {{ .Values.backupScheduledCR.resources.limits.memory | default "512Mi" }}
+{{- end }}

@@ -1,0 +1,26 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Restore
+metadata:
+  name: {{ include "mariadb.fullname" . }}-restore-target-recovery-time
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.restoreTargetRecoveryTime.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  targetRecoveryTime: {{ .Values.restoreTargetRecoveryTime.targetRecoveryTime | quote }}
+  s3:
+    bucket: {{ .Values.restoreTargetRecoveryTime.s3.bucket | quote }}
+    prefix: {{ .Values.restoreTargetRecoveryTime.s3.prefix | quote }}
+    endpoint: {{ .Values.restoreTargetRecoveryTime.s3.endpoint | quote }}
+    region: {{ .Values.restoreTargetRecoveryTime.s3.region | quote }}
+    accessKeyIdSecretKeyRef:
+      name: {{ .Values.restoreTargetRecoveryTime.s3.accessKeyIdSecretKeyRef.name | quote }}
+      key: {{ .Values.restoreTargetRecoveryTime.s3.accessKeyIdSecretKeyRef.key | quote }}
+    secretAccessKeySecretKeyRef:
+      name: {{ .Values.restoreTargetRecoveryTime.s3.secretAccessKeySecretKeyRef.name | quote }}
+      key: {{ .Values.restoreTargetRecoveryTime.s3.secretAccessKeySecretKeyRef.key | quote }}
+    tls:
+      enabled: {{ .Values.restoreTargetRecoveryTime.s3.tls.enabled | default true }}
+      caSecretKeyRef:
+        name: {{ .Values.restoreTargetRecoveryTime.s3.tls.caSecretKeyRef.name | quote }}
+        key: {{ .Values.restoreTargetRecoveryTime.s3.tls.caSecretKeyRef.key | quote }}

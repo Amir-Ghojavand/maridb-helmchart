@@ -1,0 +1,34 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-full
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbFull.rootPasswordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbFull.rootPasswordSecretKeyRef.key | quote }}
+  username: {{ .Values.mariadbFull.username | quote }}
+  passwordSecretKeyRef:
+    name: {{ .Values.mariadbFull.passwordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbFull.passwordSecretKeyRef.key | quote }}
+    generate: {{ .Values.mariadbFull.passwordSecretKeyRef.generate | default false }}
+  database: {{ .Values.mariadbFull.database | quote }}
+  port: {{ .Values.mariadbFull.port | default 3306 }}
+  storage:
+    size: {{ .Values.mariadbFull.storage.size | default "1Gi" }}
+  service:
+    type: {{ .Values.mariadbFull.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbFull.service.metadata.annotations.metallb | quote }}
+  myCnf: |
+    {{- .Values.mariadbFull.myCnf | nindent 4 }}
+  resources:
+    requests:
+      cpu: {{ .Values.mariadbFull.resources.requests.cpu | default "100m" }}
+      memory: {{ .Values.mariadbFull.resources.requests.memory | default "128Mi" }}
+    limits:
+      memory: {{ .Values.mariadbFull.resources.limits.memory | default "1Gi" }}
+  metrics:
+    enabled: {{ .Values.mariadbFull.metrics.enabled | default true }}

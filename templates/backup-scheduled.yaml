@@ -1,0 +1,49 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Backup
+metadata:
+  name: {{ include "mariadb.fullname" . }}-backup-scheduled
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.backupScheduled.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  schedule:
+    cron: {{ .Values.backupScheduled.schedule.cron | quote }}
+    suspend: {{ .Values.backupScheduled.schedule.suspend | default false }}
+  timeZone: {{ .Values.backupScheduled.timeZone | default "UTC" }}
+  maxRetention: {{ .Values.backupScheduled.maxRetention | default "720h" }}
+  compression: {{ .Values.backupScheduled.compression | default "bzip2" }}
+  storage:
+    s3:
+      bucket: {{ .Values.backupScheduled.storage.s3.bucket | quote }}
+      endpoint: {{ .Values.backupScheduled.storage.s3.endpoint | quote }}
+      accessKeyIdSecretKeyRef:
+        name: {{ .Values.backupScheduled.storage.s3.accessKeyIdSecretKeyRef.name | quote }}
+        key: {{ .Values.backupScheduled.storage.s3.accessKeyIdSecretKeyRef.key | quote }}
+      secretAccessKeySecretKeyRef:
+        name: {{ .Values.backupScheduled.storage.s3.secretAccessKeySecretKeyRef.name | quote }}
+        key: {{ .Values.backupScheduled.storage.s3.secretAccessKeySecretKeyRef.key | quote }}
+      tls:
+        enabled: {{ .Values.backupScheduled.storage.s3.tls.enabled | default true }}
+        caSecretKeyRef:
+          name: {{ .Values.backupScheduled.storage.s3.tls.caSecretKeyRef.name | quote }}
+          key: {{ .Values.backupScheduled.storage.s3.tls.caSecretKeyRef.key | quote }}
+  stagingStorage:
+    persistentVolumeClaim:
+      resources:
+        requests:
+          storage: {{ .Values.backupScheduled.stagingStorage.persistentVolumeClaim.resources.requests.storage | default "10Gi" }}
+      accessModes:
+        - {{ .Values.backupScheduled.stagingStorage.persistentVolumeClaim.accessModes | default "ReadWriteOnce" }}
+  args:
+    {{- toYaml .Values.backupScheduled.args | nindent 4 }}
+  logLevel: {{ .Values.backupScheduled.logLevel | default "info" }}
+  resources:
+    requests:
+      cpu: {{ .Values.backupScheduled.resources.requests.cpu | default "100m" }}
+      memory: {{ .Values.backupScheduled.resources.requests.memory | default "128Mi" }}
+    limits:
+      cpu: {{ .Values.backupScheduled.resources.limits.cpu | default "300m" }}
+      memory: {{ .Values.backupScheduled.resources.limits.memory | default "512Mi" }}
+  affinity:
+    antiAffinityEnabled: {{ .Values.backupScheduled.affinity.antiAffinityEnabled | default true }}

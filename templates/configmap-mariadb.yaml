@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mariadb.fullname" . }}-config
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+data:
+  my.cnf: |
+    [mysqld]
+    bind-address = 0.0.0.0
+    max_connections = {{ .Values.mariadb.maxConnections }}
+    innodb_buffer_pool_size = {{ .Values.mariadb.innodbBufferPoolSize }}
+    sql_mode = {{ .Values.mariadb.sqlMode }}
+    character-set-server = {{ .Values.mariadb.characterSetServer }}
+    collation-server = {{ .Values.mariadb.collationServer }}
+    # Additional configuration options can be added here

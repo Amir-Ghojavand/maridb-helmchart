@@ -1,0 +1,34 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Connection
+metadata:
+  name: {{ include "mariadb.fullname" . }}-connection
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.connection.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  username: {{ .Values.connection.username | quote }}
+  passwordSecretKeyRef:
+    name: {{ .Values.connection.passwordSecretKeyRef.name | quote }}
+    key: {{ .Values.connection.passwordSecretKeyRef.key | quote }}
+  database: {{ .Values.connection.database | quote }}
+  params:
+    parseTime: {{ .Values.connection.params.parseTime | quote }}
+    timeout: {{ .Values.connection.params.timeout | quote }}
+  secretName: {{ .Values.connection.secretName | quote }}
+  secretTemplate:
+    metadata:
+      labels:
+        k8s.mariadb.com/connection: {{ .Values.connection.secretTemplate.metadata.labels.connection | quote }}
+      annotations:
+        k8s.mariadb.com/connection: {{ .Values.connection.secretTemplate.metadata.annotations.connection | quote }}
+    key: {{ .Values.connection.secretTemplate.key | quote }}
+    usernameKey: {{ .Values.connection.secretTemplate.usernameKey | quote }}
+    passwordKey: {{ .Values.connection.secretTemplate.passwordKey | quote }}
+    hostKey: {{ .Values.connection.secretTemplate.hostKey | quote }}
+    portKey: {{ .Values.connection.secretTemplate.portKey | quote }}
+    databaseKey: {{ .Values.connection.secretTemplate.databaseKey | quote }}
+  healthCheck:
+    interval: {{ .Values.connection.healthCheck.interval | quote }}
+    retryInterval: {{ .Values.connection.healthCheck.retryInterval | quote }}
+  serviceName: {{ .Values.connection.serviceName | quote }}

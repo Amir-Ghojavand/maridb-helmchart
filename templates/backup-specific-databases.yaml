@@ -1,0 +1,28 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Backup
+metadata:
+  name: {{ include "mariadb.fullname" . }}-backup-specific-databases
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.backupSpecificDatabases.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  databases:
+    {{- toYaml .Values.backupSpecificDatabases.databases | nindent 4 }}
+  maxRetention: {{ .Values.backupSpecificDatabases.maxRetention | default "720h" }}
+  storage:
+    s3:
+      bucket: {{ .Values.backupSpecificDatabases.storage.s3.bucket | quote }}
+      endpoint: {{ .Values.backupSpecificDatabases.storage.s3.endpoint | quote }}
+      region: {{ .Values.backupSpecificDatabases.storage.s3.region | quote }}
+      accessKeyIdSecretKeyRef:
+        name: {{ .Values.backupSpecificDatabases.storage.s3.accessKeyIdSecretKeyRef.name | quote }}
+        key: {{ .Values.backupSpecificDatabases.storage.s3.accessKeyIdSecretKeyRef.key | quote }}
+      secretAccessKeySecretKeyRef:
+        name: {{ .Values.backupSpecificDatabases.storage.s3.secretAccessKeySecretKeyRef.name | quote }}
+        key: {{ .Values.backupSpecificDatabases.storage.s3.secretAccessKeySecretKeyRef.key | quote }}
+      tls:
+        enabled: {{ .Values.backupSpecificDatabases.storage.s3.tls.enabled | default true }}
+        caSecretKeyRef:
+          name: {{ .Values.backupSpecificDatabases.storage.s3.tls.caSecretKeyRef.name | quote }}
+          key: {{ .Values.backupSpecificDatabases.storage.s3.tls.caSecretKeyRef.key | quote }}

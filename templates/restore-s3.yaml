@@ -1,0 +1,26 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Restore
+metadata:
+  name: {{ include "mariadb.fullname" . }}-restore-s3
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.restoreS3.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  targetRecoveryTime: {{ .Values.restoreS3.targetRecoveryTime | quote }}
+  s3:
+    bucket: {{ .Values.restoreS3.s3.bucket | quote }}
+    prefix: {{ .Values.restoreS3.s3.prefix | quote }}
+    endpoint: {{ .Values.restoreS3.s3.endpoint | quote }}
+    region: {{ .Values.restoreS3.s3.region | quote }}
+    accessKeyIdSecretKeyRef:
+      name: {{ .Values.restoreS3.s3.accessKeyIdSecretKeyRef.name | quote }}
+      key: {{ .Values.restoreS3.s3.accessKeyIdSecretKeyRef.key | quote }}
+    secretAccessKeySecretKeyRef:
+      name: {{ .Values.restoreS3.s3.secretAccessKeySecretKeyRef.name | quote }}
+      key: {{ .Values.restoreS3.s3.secretAccessKeySecretKeyRef.key | quote }}
+    tls:
+      enabled: {{ .Values.restoreS3.s3.tls.enabled | default true }}
+      caSecretKeyRef:
+        name: {{ .Values.restoreS3.s3.tls.caSecretKeyRef.name | quote }}
+        key: {{ .Values.restoreS3.s3.tls.caSecretKeyRef.key | quote }}

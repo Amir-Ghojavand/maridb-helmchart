@@ -1,0 +1,15 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Database
+metadata:
+  name: {{ include "mariadb.fullname" . }}-db
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  name: {{ .Values.auth.database }}
+  mariaDbRef:
+    name: {{ include "mariadb.fullname" . }}
+  characterSet: {{ .Values.database.characterSet | default "utf8" }}
+  collate: {{ .Values.database.collate | default "utf8_general_ci" }}
+  cleanupPolicy: {{ .Values.database.cleanupPolicy | default "Delete" }}
+  requeueInterval: {{ .Values.database.requeueInterval | default "30s" }}
+  retryInterval: {{ .Values.database.retryInterval | default "5s" }}

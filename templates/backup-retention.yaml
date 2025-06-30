@@ -1,0 +1,17 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Backup
+metadata:
+  name: {{ include "mariadb.fullname" . }}-backup-retention
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.backupRetention.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  maxRetention: {{ .Values.backupRetention.maxRetention | default "720h" }}
+  storage:
+    persistentVolumeClaim:
+      resources:
+        requests:
+          storage: {{ .Values.backupRetention.storage.persistentVolumeClaim.resources.requests.storage | default "100Mi" }}
+      accessModes:
+        - {{ .Values.backupRetention.storage.persistentVolumeClaim.accessModes | default "ReadWriteOnce" }}

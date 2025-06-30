@@ -1,0 +1,22 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-replication
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbReplication.rootPasswordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbReplication.rootPasswordSecretKeyRef.key | quote }}
+  storage:
+    size: {{ .Values.mariadbReplication.storage.size | default "1Gi" }}
+  replicas: {{ .Values.mariadbReplication.replicas | default 2 }}
+  replication:
+    enabled: {{ .Values.mariadbReplication.replication.enabled | default true }}
+  service:
+    type: {{ .Values.mariadbReplication.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplication.service.metadata.annotations.metallb | quote }}
+  metrics:
+    enabled: {{ .Values.mariadbReplication.metrics.enabled | default true }}

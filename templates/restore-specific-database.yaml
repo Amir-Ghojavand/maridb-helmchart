@@ -1,0 +1,26 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Restore
+metadata:
+  name: {{ include "mariadb.fullname" . }}-restore-specific-database
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.restoreSpecificDatabase.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  database: {{ .Values.restoreSpecificDatabase.database | quote }}
+  s3:
+    bucket: {{ .Values.restoreSpecificDatabase.s3.bucket | quote }}
+    prefix: {{ .Values.restoreSpecificDatabase.s3.prefix | quote }}
+    endpoint: {{ .Values.restoreSpecificDatabase.s3.endpoint | quote }}
+    region: {{ .Values.restoreSpecificDatabase.s3.region | quote }}
+    accessKeyIdSecretKeyRef:
+      name: {{ .Values.restoreSpecificDatabase.s3.accessKeyIdSecretKeyRef.name | quote }}
+      key: {{ .Values.restoreSpecificDatabase.s3.accessKeyIdSecretKeyRef.key | quote }}
+    secretAccessKeySecretKeyRef:
+      name: {{ .Values.restoreSpecificDatabase.s3.secretAccessKeySecretKeyRef.name | quote }}
+      key: {{ .Values.restoreSpecificDatabase.s3.secretAccessKeySecretKeyRef.key | quote }}
+    tls:
+      enabled: {{ .Values.restoreSpecificDatabase.s3.tls.enabled | default true }}
+      caSecretKeyRef:
+        name: {{ .Values.restoreSpecificDatabase.s3.tls.caSecretKeyRef.name | quote }}
+        key: {{ .Values.restoreSpecificDatabase.s3.tls.caSecretKeyRef.key | quote }}

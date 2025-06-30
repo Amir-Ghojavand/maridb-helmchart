@@ -1,0 +1,496 @@
+# Default configuration values for the MariaDB Helm chart
+
+# MariaDB image settings
+image:
+  repository: mariadb
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# MariaDB root password and user credentials
+auth:
+  rootPassword: your-root-password  # Root password for MariaDB root user
+  user: your-user                  # Application user to create
+  userPassword: your-user-password # Password for the application user
+  database: your-database          # Database to create
+
+# MariaDB configuration
+config:
+  my.cnf: |
+    [mysqld]
+    bind-address = 0.0.0.0
+    max_connections = 100
+
+# Service settings
+service:
+  enabled: true
+  type: ClusterIP  # Options: ClusterIP, NodePort, LoadBalancer
+  port: 3306
+  annotations: {}
+
+# Persistence settings
+persistence:
+  enabled: true
+  storageClass: "standard"  # Set to your storage class
+  accessModes:
+    - ReadWriteOnce
+  size: 8Gi  # Default size for the PVC
+
+# Resource requests and limits
+resources:
+  requests:
+    cpu: "250m"
+    memory: "256Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+# Number of replicas
+replicaCount: 1
+
+# Liveness and readiness probes
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+# Affinity and tolerations
+affinity: {}
+tolerations: []
+nodeSelector: {}
+
+# Backup settings (for CronJob, not Operator CRD)
+backupCronJob:
+  enabled: false  # Set to true to enable backup CronJob
+  schedule: "0 2 * * *"  # Cron schedule for backups
+  retention: 7  # Number of days to retain backups
+
+# Prometheus ServiceMonitor settings
+serviceMonitor:
+  enabled: false  # Set to true to enable ServiceMonitor
+  interval: 30s
+  timeout: 10s
+
+# Ingress settings
+ingress:
+  enabled: false  # Set to true to enable Ingress
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - /
+  tls: []  # TLS configuration for Ingress
+
+# Additional settings can be added below as needed.
+
+# MariaDB Operator CRD options for Database
+# These control the Database custom resource
+# See manifests/database.yaml for all options
+#
+database:
+  characterSet: utf8               # Character set for the database
+  collate: utf8_general_ci         # Collation for the database
+  cleanupPolicy: Delete            # Cleanup policy (Delete/Skip)
+  requeueInterval: 30s             # Requeue interval
+  retryInterval: 5s                # Retry interval
+
+# MariaDB Operator CRD options for User
+# These control the User custom resource
+# See manifests/user.yaml for all options
+#
+user:
+  maxUserConnections: 20           # Max connections for the user
+  host: "%"                        # Host for the user
+  cleanupPolicy: Delete            # Cleanup policy (Delete/Skip)
+  requeueInterval: 30s             # Requeue interval
+  retryInterval: 5s                # Retry interval
+
+# MariaDB Operator CRD options for Backup
+# These control the Backup custom resource
+# See manifests/backup.yaml for all options
+#
+backupCR:
+  enabled: false                   # Set to true to enable backup CR
+  annotations: {}
+  podLabels: {}
+  compression: gzip
+  storage:
+    size: 100Mi
+    accessMode: ReadWriteOnce
+  args:
+    - --single-transaction
+    - --all-databases
+    - --verbose
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
+  affinity:
+    antiAffinityEnabled: true
+
+# Restore CR options for MariaDB Operator
+restoreCR:
+  enabled: false                   # Set to true to enable Restore CR
+  backupRefName: ""                # Name of the Backup CR to restore from (defaults to <release>-mariadb-backup)
+  annotations: {}
+  podLabels: {}
+  args:
+    - --verbose
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
+  affinity:
+    antiAffinityEnabled: true
+
+# Scheduled Backup CR (Operator-native, replaces CronJob backup)
+backupScheduledCR:
+  enabled: false  # Set to true to enable scheduled Backup CR
+  cron: "*/1 * * * *"  # Cron schedule for backups
+  suspend: false
+  timeZone: "UTC"
+  maxRetention: 720h # 30 days
+  compression: bzip2
+  s3:
+    bucket: backups
+    endpoint: minio.minio.svc.cluster.local:9000
+    accessKeyIdSecretKeyRef:
+      name: minio
+      key: access-key-id
+    secretAccessKeySecretKeyRef:
+      name: minio
+      key: secret-access-key
+    tls:
+      enabled: true
+      caSecretKeyRef:
+        name: minio-ca
+        key: ca.crt
+  stagingStorage:
+    size: 10Gi
+    accessMode: ReadWriteOnce
+  args:
+    - --single-transaction
+    - --all-databases
+  logLevel: info
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
+
+# Example for mariadbMinimal
+mariadbMinimal:
+  rootPasswordSecretKeyRef:
+    name: "mariadb-minimal"
+    key: "root-password"
+  storage:
+    size: 1Gi
+
+# Example for mariadbFull
+mariadbFull:
+  rootPasswordSecretKeyRef:
+    name: "mariadb-full"
+    key: "root-password"
+  username: "mariadb"
+  passwordSecretKeyRef:
+    name: "mariadb-password"
+    key: "password"
+    generate: true
+  database: "mariadb"
+  port: 3306
+  storage:
+    size: 1Gi
+  service:
+    type: LoadBalancer
+    metadata:
+      annotations:
+        metallb: "172.18.0.20"
+  myCnf: |
+    [mariadb]
+    bind-address=*
+    default_storage_engine=InnoDB
+    binlog_format=row
+    innodb_autoinc_lock_mode=2
+    innodb_buffer_pool_size=1024M
+    max_allowed_packet=256M
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 1Gi
+  metrics:
+    enabled: true
+
+# Example for mariadbReplication
+mariadbReplication:
+  rootPasswordSecretKeyRef:
+    name: "mariadb-replication"
+    key: "root-password"
+  storage:
+    size: 1Gi
+  replicas: 2
+  replication:
+    enabled: true
+  service:
+    type: LoadBalancer
+    metadata:
+      annotations:
+        metallb: "172.18.0.21"
+  metrics:
+    enabled: true
+
+# Example for mariadbGaleraFull
+mariadbGaleraFull:
+  rootPasswordSecretKeyRef:
+    name: "mariadb-galera-full"
+    key: "root-password"
+  storage:
+    size: 1Gi
+  replicas: 3
+  galera:
+    enabled: true
+  service:
+    type: LoadBalancer
+    metadata:
+      annotations:
+        metallb: "172.18.0.150"
+  primaryService:
+    type: LoadBalancer
+    metadata:
+      annotations:
+        metallb: "172.18.0.160"
+  secondaryService:
+    type: LoadBalancer
+    metadata:
+      annotations:
+        metallb: "172.18.0.161"
+  metrics:
+    enabled: true
+
+# Example for mariadbGaleraProduction
+mariadbGaleraProduction:
+  rootPasswordSecretKeyRef:
+    name: "mariadb-galera-production"
+    key: "root-password"
+  storage:
+    size: 1Gi
+  replicas: 3
+  galera:
+    enabled: true
+  service:
+    type: LoadBalancer
+    metadata:
+      annotations:
+        metallb: "172.18.0.150"
+  primaryService:
+    type: LoadBalancer
+    metadata:
+      annotations:
+        metallb: "172.18.0.160"
+  secondaryService:
+    type: LoadBalancer
+    metadata:
+      annotations:
+        metallb: "172.18.0.161"
+  metrics:
+    enabled: true
+
+# Example for connectionCustomDsn
+connectionCustomDsn:
+  mariaDbRefName: "mariadb"
+  dsn: "user:password@tcp(mariadb:3306)/database"
+  secretName: "connection-custom-dsn"
+  secretTemplate:
+    metadata:
+      labels:
+        connection: "custom-dsn"
+      annotations:
+        connection: "custom-dsn"
+    key: "dsn"
+
+# Example for connectionMaxscaleTls
+connectionMaxscaleTls:
+  mariaDbRefName: "mariadb"
+  username: "maxuser"
+  passwordSecretKeyRef:
+    name: "maxuser-secret"
+    key: "password"
+  database: "maxdb"
+  params:
+    parseTime: "true"
+    timeout: "5s"
+  secretName: "connection-maxscale-tls"
+  tls:
+    enabled: true
+    caSecretKeyRef:
+      name: "maxscale-ca"
+      key: "ca.crt"
+  healthCheck:
+    interval: "30s"
+    retryInterval: "3s"
+  serviceName: "maxscale"
+
+# Example for connectionTls
+connectionTls:
+  mariaDbRefName: "mariadb"
+  username: "tlsuser"
+  passwordSecretKeyRef:
+    name: "tlsuser-secret"
+    key: "password"
+  database: "tlsdb"
+  params:
+    parseTime: "true"
+    timeout: "5s"
+  secretName: "connection-tls"
+  tls:
+    enabled: true
+    caSecretKeyRef:
+      name: "tls-ca"
+      key: "ca.crt"
+  healthCheck:
+    interval: "30s"
+    retryInterval: "3s"
+  serviceName: "mariadb"
+
+# Example for restoreS3
+restoreS3:
+  mariaDbRefName: "mariadb"
+  targetRecoveryTime: "2023-12-19T09:00:00Z"
+  s3:
+    bucket: "backups"
+    prefix: "mariadb"
+    endpoint: "minio.minio.svc.cluster.local:9000"
+    region: "us-east-1"
+    accessKeyIdSecretKeyRef:
+      name: "minio"
+      key: "access-key-id"
+    secretAccessKeySecretKeyRef:
+      name: "minio"
+      key: "secret-access-key"
+    tls:
+      enabled: true
+      caSecretKeyRef:
+        name: "minio-ca"
+        key: "ca.crt"
+
+# Example for restoreS3Staging
+restoreS3Staging:
+  mariaDbRefName: "mariadb"
+  s3:
+    bucket: "backups"
+    prefix: "mariadb"
+    endpoint: "minio.minio.svc.cluster.local:9000"
+    region: "us-east-1"
+    accessKeyIdSecretKeyRef:
+      name: "minio"
+      key: "access-key-id"
+    secretAccessKeySecretKeyRef:
+      name: "minio"
+      key: "secret-access-key"
+    tls:
+      enabled: true
+      caSecretKeyRef:
+        name: "minio-ca"
+        key: "ca.crt"
+  stagingStorage:
+    persistentVolumeClaim:
+      resources:
+        requests:
+          storage: 1Gi
+      accessModes:
+        - ReadWriteOnce
+
+# Example for restoreSpecificDatabase
+restoreSpecificDatabase:
+  mariaDbRefName: "mariadb"
+  database: "mydb"
+  s3:
+    bucket: "backups"
+    prefix: "mariadb"
+    endpoint: "minio.minio.svc.cluster.local:9000"
+    region: "us-east-1"
+    accessKeyIdSecretKeyRef:
+      name: "minio"
+      key: "access-key-id"
+    secretAccessKeySecretKeyRef:
+      name: "minio"
+      key: "secret-access-key"
+    tls:
+      enabled: true
+      caSecretKeyRef:
+        name: "minio-ca"
+        key: "ca.crt"
+
+# Example for restoreTargetRecoveryTime
+restoreTargetRecoveryTime:
+  mariaDbRefName: "mariadb"
+  targetRecoveryTime: "2023-12-19T09:00:00Z"
+  s3:
+    bucket: "backups"
+    prefix: "mariadb"
+    endpoint: "minio.minio.svc.cluster.local:9000"
+    region: "us-east-1"
+    accessKeyIdSecretKeyRef:
+      name: "minio"
+      key: "access-key-id"
+    secretAccessKeySecretKeyRef:
+      name: "minio"
+      key: "secret-access-key"
+    tls:
+      enabled: true
+      caSecretKeyRef:
+        name: "minio-ca"
+        key: "ca.crt"
+
+# Example for userPasswordHash
+userPasswordHash:
+  name: "user-hash"
+  mariaDbRefName: "mariadb"
+  passwordHash: "*HASHEDPASSWORD*"
+  host: "%"
+  cleanupPolicy: Delete
+  requeueInterval: 30s
+  retryInterval: 5s
+
+# Example for userPasswordPlugin
+userPasswordPlugin:
+  name: "user-plugin"
+  mariaDbRefName: "mariadb"
+  passwordSecretKeyRef:
+    name: "user-plugin-secret"
+    key: "password"
+  authenticationPlugin: "mysql_native_password"
+  host: "%"
+  cleanupPolicy: Delete
+  requeueInterval: 30s
+  retryInterval: 5s
+
+# Example for userTls
+userTls:
+  name: "user-tls"
+  mariaDbRefName: "mariadb"
+  passwordSecretKeyRef:
+    name: "user-tls-secret"
+    key: "password"
+  tls:
+    enabled: true
+    caSecretKeyRef:
+      name: "tls-ca"
+      key: "ca.crt"
+  host: "%"
+  cleanupPolicy: Delete
+  requeueInterval: 30s
+  retryInterval: 5s

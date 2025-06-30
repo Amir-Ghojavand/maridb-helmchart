@@ -1,0 +1,19 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Grant
+metadata:
+  name: {{ include "mariadb.fullname" . }}-grant
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.grant.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  privileges:
+    {{- toYaml .Values.grant.privileges | nindent 4 }}
+  database: {{ .Values.grant.database | quote }}
+  table: {{ .Values.grant.table | quote }}
+  username: {{ .Values.grant.username | quote }}
+  grantOption: {{ .Values.grant.grantOption | default true }}
+  host: {{ .Values.grant.host | default '"%"' }}
+  cleanupPolicy: {{ .Values.grant.cleanupPolicy | default "Delete" }}
+  requeueInterval: {{ .Values.grant.requeueInterval | default "30s" }}
+  retryInterval: {{ .Values.grant.retryInterval | default "5s" }}

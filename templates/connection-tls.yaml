@@ -1,0 +1,27 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Connection
+metadata:
+  name: {{ include "mariadb.fullname" . }}-connection-tls
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.connectionTls.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  username: {{ .Values.connectionTls.username | quote }}
+  passwordSecretKeyRef:
+    name: {{ .Values.connectionTls.passwordSecretKeyRef.name | quote }}
+    key: {{ .Values.connectionTls.passwordSecretKeyRef.key | quote }}
+  database: {{ .Values.connectionTls.database | quote }}
+  params:
+    parseTime: {{ .Values.connectionTls.params.parseTime | quote }}
+    timeout: {{ .Values.connectionTls.params.timeout | quote }}
+  secretName: {{ .Values.connectionTls.secretName | quote }}
+  tls:
+    enabled: {{ .Values.connectionTls.tls.enabled | default true }}
+    caSecretKeyRef:
+      name: {{ .Values.connectionTls.tls.caSecretKeyRef.name | quote }}
+      key: {{ .Values.connectionTls.tls.caSecretKeyRef.key | quote }}
+  healthCheck:
+    interval: {{ .Values.connectionTls.healthCheck.interval | quote }}
+    retryInterval: {{ .Values.connectionTls.healthCheck.retryInterval | quote }}
+  serviceName: {{ .Values.connectionTls.serviceName | quote }}

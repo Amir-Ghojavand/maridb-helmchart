@@ -1,0 +1,20 @@
+apiVersion: v2
+name: mariadb
+description: A Helm chart for deploying MariaDB on Kubernetes
+type: application
+version: 0.1.0
+appVersion: "10.5"  # Specify the version of MariaDB
+icon: "https://raw.githubusercontent.com/bitnami/bitnami-docker-mariadb/master/mariadb.png"  # Optional: Icon for the chart
+keywords:
+  - mariadb
+  - database
+  - sql
+  - kubernetes
+dependencies: []  # Add any chart dependencies here if needed
+maintainers:
+  - name: aria(amir) ghojavand
+    email: ariaghojavand@example.com
+sources:
+  - https://github.com/mariadb/mariadb-server
+  - https://github.com/mariadb-operator/mariadb-operator
+  - https://mariadb.com/docs/skysql-operator/
