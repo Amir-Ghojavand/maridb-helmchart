@@ -1,0 +1,40 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-galera-tls
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraTls.rootPasswordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraTls.rootPasswordSecretKeyRef.key | quote }}
+  username: {{ .Values.mariadbGaleraTls.username | quote }}
+  passwordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraTls.passwordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraTls.passwordSecretKeyRef.key | quote }}
+  database: {{ .Values.mariadbGaleraTls.database | quote }}
+  storage:
+    size: {{ .Values.mariadbGaleraTls.storage.size | default "1Gi" }}
+  replicas: {{ .Values.mariadbGaleraTls.replicas | default 3 }}
+  galera:
+    enabled: {{ .Values.mariadbGaleraTls.galera.enabled | default true }}
+  service:
+    type: {{ .Values.mariadbGaleraTls.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraTls.service.metadata.annotations.metallb | quote }}
+  primaryService:
+    type: {{ .Values.mariadbGaleraTls.primaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraTls.primaryService.metadata.annotations.metallb | quote }}
+  secondaryService:
+    type: {{ .Values.mariadbGaleraTls.secondaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraTls.secondaryService.metadata.annotations.metallb | quote }}
+  metrics:
+    enabled: {{ .Values.mariadbGaleraTls.metrics.enabled | default true }}
+  tls:
+    enabled: {{ .Values.mariadbGaleraTls.tls.enabled | default true }}
+    required: {{ .Values.mariadbGaleraTls.tls.required | default true }}

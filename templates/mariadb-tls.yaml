@@ -1,0 +1,27 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ .Values.mariadbTls.name }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbTls.rootPasswordSecretKeyRef.name }}
+    key: {{ .Values.mariadbTls.rootPasswordSecretKeyRef.key }}
+
+  storage:
+    size: {{ .Values.mariadbTls.storage.size }}
+
+  service:
+    type: {{ .Values.mariadbTls.service.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbTls.service.annotations.metallbLoadBalancerIP }}
+
+  myCnf: |
+{{ .Values.mariadbTls.myCnf | indent 4 }}
+
+  metrics:
+    enabled: {{ .Values.mariadbTls.metrics.enabled }}
+
+  tls:
+    enabled: {{ .Values.mariadbTls.tls.enabled }}
+    required: {{ .Values.mariadbTls.tls.required }}

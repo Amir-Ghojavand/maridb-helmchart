@@ -5,8 +5,7 @@ metadata:
   labels:
     {{- include "mariadb.labels" . | nindent 4 }}
 spec:
-  name: {{ .Values.auth.database }}
-  mariaDbRef:
+   mariaDbRef:
     name: {{ include "mariadb.fullname" . }}
   characterSet: {{ .Values.database.characterSet | default "utf8" }}
   collate: {{ .Values.database.collate | default "utf8_general_ci" }}

@@ -1,0 +1,99 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-full
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbFull.rootPasswordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbFull.rootPasswordSecretKeyRef.key | quote }}
+  username: {{ .Values.mariadbFull.username | quote }}
+  passwordSecretKeyRef:
+    name: {{ .Values.mariadbFull.passwordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbFull.passwordSecretKeyRef.key | quote }}
+  database: {{ .Values.mariadbFull.database | quote }}
+  image: {{ .Values.mariadbFull.image | quote }}
+  imagePullPolicy: {{ .Values.mariadbFull.imagePullPolicy | default "IfNotPresent" }}
+  imagePullSecrets:
+    - name: {{ .Values.mariadbFull.imagePullSecrets.name | default "registry" | quote }}
+  port: {{ .Values.mariadbFull.port | default 3306 }}
+  storage:
+    size: {{ .Values.mariadbFull.storage.size | default "1Gi" }}
+    storageClassName: {{ .Values.mariadbFull.storage.storageClassName | default "standard" }}
+    resizeInUseVolumes: {{ .Values.mariadbFull.storage.resizeInUseVolumes | default true }}
+    waitForVolumeResize: {{ .Values.mariadbFull.storage.waitForVolumeResize | default true }}
+  volumes:
+    - name: mariabackup
+      persistentVolumeClaim:
+        claimName: {{ .Values.mariadbFull.volumes[0].persistentVolumeClaim.claimName | default "mariabackup" | quote }}
+  volumeMounts:
+    - name: mariabackup
+      mountPath: {{ .Values.mariadbFull.volumeMounts[0].mountPath | default "/var/mariadb/backup/" | quote }}
+  connection:
+    secretName: {{ .Values.mariadbFull.connection.secretName | quote }}
+    secretTemplate:
+      key: {{ .Values.mariadbFull.connection.secretTemplate.key | quote }}
+    healthCheck:
+      interval: {{ .Values.mariadbFull.connection.healthCheck.interval | quote }}
+      retryInterval: {{ .Values.mariadbFull.connection.healthCheck.retryInterval | quote }}
+    params:
+      parseTime: {{ .Values.mariadbFull.connection.params.parseTime | quote }}
+  myCnf: |
+    {{- .Values.mariadbFull.myCnf | nindent 4 }}
+  myCnfConfigMapKeyRef:
+    name: {{ .Values.mariadbFull.myCnfConfigMapKeyRef.name | quote }}
+    key: {{ .Values.mariadbFull.myCnfConfigMapKeyRef.key | quote }}
+  timeZone: {{ .Values.mariadbFull.timeZone | default "UTC" | quote }}
+  resources:
+    requests:
+      cpu: {{ .Values.mariadbFull.resources.requests.cpu | default "100m" }}
+      memory: {{ .Values.mariadbFull.resources.requests.memory | default "128Mi" }}
+    limits:
+      memory: {{ .Values.mariadbFull.resources.limits.memory | default "1Gi" }}
+  env:
+    - name: TZ
+      value: {{ .Values.mariadbFull.env[0].value | default "SYSTEM" | quote }}
+  podSecurityContext:
+    runAsUser: {{ .Values.mariadbFull.podSecurityContext.runAsUser | default 0 }}
+  securityContext:
+    allowPrivilegeEscalation: {{ .Values.mariadbFull.securityContext.allowPrivilegeEscalation | default false }}
+  livenessProbe:
+    exec:
+      command:
+        - bash
+        - -c
+        - mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e "SELECT 1;"
+    periodSeconds: {{ .Values.mariadbFull.livenessProbe.periodSeconds | default 5 }}
+    timeoutSeconds: {{ .Values.mariadbFull.livenessProbe.timeoutSeconds | default 5 }}
+  readinessProbe:
+    exec:
+      command:
+        - bash
+        - -c
+        - mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e "SELECT 1;"
+    periodSeconds: {{ .Values.mariadbFull.readinessProbe.periodSeconds | default 5 }}
+    timeoutSeconds: {{ .Values.mariadbFull.readinessProbe.timeoutSeconds | default 5 }}
+  startupProbe:
+    exec:
+      command:
+        - bash
+        - -c
+        - mariadb -u root -p"${MARIADB_ROOT_PASSWORD}" -e "SELECT 1;"
+    failureThreshold: {{ .Values.mariadbFull.startupProbe.failureThreshold | default 10 }}
+    periodSeconds: {{ .Values.mariadbFull.startupProbe.periodSeconds | default 5 }}
+    timeoutSeconds: {{ .Values.mariadbFull.startupProbe.timeoutSeconds | default 5 }}
+  podDisruptionBudget:
+    maxUnavailable: {{ .Values.mariadbFull.podDisruptionBudget.maxUnavailable | default "50%" }}
+  updateStrategy:
+    type: {{ .Values.mariadbFull.updateStrategy.type | default "ReplicasFirstPrimaryLast" }}
+  service:
+    type: {{ .Values.mariadbFull.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbFull.service.metadata.annotations.metallb | quote }}
+    externalTrafficPolicy: {{ .Values.mariadbFull.service.externalTrafficPolicy | default "Cluster" }}
+    sessionAffinity: {{ .Values.mariadbFull.service.sessionAffinity | default "None" }}
+  metrics:
+    enabled: {{ .Values.mariadbFull.metrics.enabled | default true }}
+  suspend: {{ .Values.mariadbFull.suspend | default false }}

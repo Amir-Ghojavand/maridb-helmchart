@@ -1,0 +1,63 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ .Values.mariadbReplicationMaxscale.name }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbReplicationMaxscale.rootPasswordSecretKeyRef.name }}
+    key: {{ .Values.mariadbReplicationMaxscale.rootPasswordSecretKeyRef.key }}
+
+  username: {{ .Values.mariadbReplicationMaxscale.username }}
+  passwordSecretKeyRef:
+    name: {{ .Values.mariadbReplicationMaxscale.passwordSecretKeyRef.name }}
+    key: {{ .Values.mariadbReplicationMaxscale.passwordSecretKeyRef.key }}
+  database: {{ .Values.mariadbReplicationMaxscale.database }}
+
+  storage:
+    size: {{ .Values.mariadbReplicationMaxscale.storage.size }}
+
+  replicas: {{ .Values.mariadbReplicationMaxscale.replicas }}
+
+  # maxScaleRef:
+  #   name: {{ .Values.mariadbReplicationMaxscale.maxScaleRef.name }}
+  maxScale:
+    enabled: {{ .Values.mariadbReplicationMaxscale.maxScale.enabled }}
+    kubernetesService:
+      type: {{ .Values.mariadbReplicationMaxscale.maxScale.kubernetesService.type }}
+      metadata:
+        annotations:
+          metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationMaxscale.maxScale.kubernetesService.annotations.metallbLoadBalancerIP }}
+    guiKubernetesService:
+      type: {{ .Values.mariadbReplicationMaxscale.maxScale.guiKubernetesService.type }}
+      metadata:
+        annotations:
+          metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationMaxscale.maxScale.guiKubernetesService.annotations.metallbLoadBalancerIP }}
+    connection:
+      secretName: {{ .Values.mariadbReplicationMaxscale.maxScale.connection.secretName }}
+      port: {{ .Values.mariadbReplicationMaxscale.maxScale.connection.port }}
+    metrics:
+      enabled: {{ .Values.mariadbReplicationMaxscale.maxScale.metrics.enabled }}
+
+  replication:
+    enabled: {{ .Values.mariadbReplicationMaxscale.replication.enabled }}
+
+  service:
+    type: {{ .Values.mariadbReplicationMaxscale.service.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationMaxscale.service.annotations.metallbLoadBalancerIP }}
+
+  primaryService:
+    type: {{ .Values.mariadbReplicationMaxscale.primaryService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationMaxscale.primaryService.annotations.metallbLoadBalancerIP }}
+
+  secondaryService:
+    type: {{ .Values.mariadbReplicationMaxscale.secondaryService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationMaxscale.secondaryService.annotations.metallbLoadBalancerIP }}
+
+  metrics:
+    enabled: {{ .Values.mariadbReplicationMaxscale.metrics.enabled }}

@@ -1,0 +1,35 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MaxScale
+metadata:
+  name: {{ .Values.maxscaleGalera.name }}
+spec:
+  replicas: {{ .Values.maxscaleGalera.replicas }}
+  mariaDbRef:
+    name: {{ .Values.maxscaleGalera.mariaDbRef.name }}
+  services:
+{{ toYaml .Values.maxscaleGalera.services | indent 4 }}
+  monitor:
+{{ toYaml .Values.maxscaleGalera.monitor | indent 4 }}
+  admin:
+    port: {{ .Values.maxscaleGalera.admin.port }}
+    guiEnabled: {{ .Values.maxscaleGalera.admin.guiEnabled }}
+  config:
+{{ toYaml .Values.maxscaleGalera.config | indent 4 }}
+  auth:
+    generate: {{ .Values.maxscaleGalera.auth.generate }}
+  kubernetesService:
+    type: {{ .Values.maxscaleGalera.kubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleGalera.kubernetesService.annotations.metallbLoadBalancerIP }}
+  guiKubernetesService:
+    type: {{ .Values.maxscaleGalera.guiKubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleGalera.guiKubernetesService.annotations.metallbLoadBalancerIP }}
+  connection:
+    secretName: {{ .Values.maxscaleGalera.connection.secretName }}
+    port: {{ .Values.maxscaleGalera.connection.port }}
+  metrics:
+    enabled: {{ .Values.maxscaleGalera.metrics.enabled }}
+  requeueInterval: {{ .Values.maxscaleGalera.requeueInterval }}

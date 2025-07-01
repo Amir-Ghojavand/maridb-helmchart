@@ -1,22 +1,37 @@
 apiVersion: k8s.mariadb.com/v1alpha1
 kind: MariaDB
 metadata:
-  name: {{ include "mariadb.fullname" . }}-replication
-  labels:
-    {{- include "mariadb.labels" . | nindent 4 }}
+  name: {{ .Values.mariadbReplication.name }}
 spec:
   rootPasswordSecretKeyRef:
-    name: {{ .Values.mariadbReplication.rootPasswordSecretKeyRef.name | quote }}
-    key: {{ .Values.mariadbReplication.rootPasswordSecretKeyRef.key | quote }}
+    name: {{ .Values.mariadbReplication.rootPasswordSecretKeyRef.name }}
+    key: {{ .Values.mariadbReplication.rootPasswordSecretKeyRef.key }}
+
   storage:
-    size: {{ .Values.mariadbReplication.storage.size | default "1Gi" }}
-  replicas: {{ .Values.mariadbReplication.replicas | default 2 }}
+    size: {{ .Values.mariadbReplication.storage.size }}
+
+  replicas: {{ .Values.mariadbReplication.replicas }}
+
   replication:
-    enabled: {{ .Values.mariadbReplication.replication.enabled | default true }}
+    enabled: {{ .Values.mariadbReplication.replication.enabled }}
+
   service:
-    type: {{ .Values.mariadbReplication.service.type | default "LoadBalancer" }}
+    type: {{ .Values.mariadbReplication.service.type }}
     metadata:
       annotations:
-        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplication.service.metadata.annotations.metallb | quote }}
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplication.service.annotations.metallbLoadBalancerIP }}
+
+  primaryService:
+    type: {{ .Values.mariadbReplication.primaryService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplication.primaryService.annotations.metallbLoadBalancerIP }}
+
+  secondaryService:
+    type: {{ .Values.mariadbReplication.secondaryService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplication.secondaryService.annotations.metallbLoadBalancerIP }}
+
   metrics:
-    enabled: {{ .Values.mariadbReplication.metrics.enabled | default true }}
+    enabled: {{ .Values.mariadbReplication.metrics.enabled }}

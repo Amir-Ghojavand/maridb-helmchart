@@ -1,0 +1,45 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MaxScale
+metadata:
+  name: {{ .Values.maxscaleReplicationTlsManual.name }}
+spec:
+  replicas: {{ .Values.maxscaleReplicationTlsManual.replicas }}
+  mariaDbRef:
+    name: {{ .Values.maxscaleReplicationTlsManual.mariaDbRef.name }}
+  admin:
+    port: {{ .Values.maxscaleReplicationTlsManual.admin.port }}
+    guiEnabled: {{ .Values.maxscaleReplicationTlsManual.admin.guiEnabled }}
+  auth:
+    generate: {{ .Values.maxscaleReplicationTlsManual.auth.generate }}
+  kubernetesService:
+    type: {{ .Values.maxscaleReplicationTlsManual.kubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleReplicationTlsManual.kubernetesService.annotations.metallbLoadBalancerIP }}
+  guiKubernetesService:
+    type: {{ .Values.maxscaleReplicationTlsManual.guiKubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleReplicationTlsManual.guiKubernetesService.annotations.metallbLoadBalancerIP }}
+  connection:
+    secretName: {{ .Values.maxscaleReplicationTlsManual.connection.secretName }}
+    port: {{ .Values.maxscaleReplicationTlsManual.connection.port }}
+  metrics:
+    enabled: {{ .Values.maxscaleReplicationTlsManual.metrics.enabled }}
+  tls:
+    enabled: {{ .Values.maxscaleReplicationTlsManual.tls.enabled }}
+    adminCASecretRef:
+      name: {{ .Values.maxscaleReplicationTlsManual.tls.adminCASecretRef.name }}
+    adminCertSecretRef:
+      name: {{ .Values.maxscaleReplicationTlsManual.tls.adminCertSecretRef.name }}
+    listenerCASecretRef:
+      name: {{ .Values.maxscaleReplicationTlsManual.tls.listenerCASecretRef.name }}
+    listenerCertSecretRef:
+      name: {{ .Values.maxscaleReplicationTlsManual.tls.listenerCertSecretRef.name }}
+    serverCASecretRef:
+      name: {{ .Values.maxscaleReplicationTlsManual.tls.serverCASecretRef.name }}
+    serverCertSecretRef:
+      name: {{ .Values.maxscaleReplicationTlsManual.tls.serverCertSecretRef.name }}
+    verifyPeerCertificate: {{ .Values.maxscaleReplicationTlsManual.tls.verifyPeerCertificate }}
+    verifyPeerHost: {{ .Values.maxscaleReplicationTlsManual.tls.verifyPeerHost }}
+    replicationSSLEnabled: {{ .Values.maxscaleReplicationTlsManual.tls.replicationSSLEnabled }}

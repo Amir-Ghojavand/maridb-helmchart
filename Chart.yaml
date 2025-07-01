@@ -13,7 +13,7 @@ keywords:
 dependencies: []  # Add any chart dependencies here if needed
 maintainers:
   - name: aria(amir) ghojavand
-    email: ariaghojavand@example.com
+    email: ariaghojavand@gmail.com
 sources:
   - https://github.com/mariadb/mariadb-server
   - https://github.com/mariadb-operator/mariadb-operator

@@ -1,0 +1,16 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Connection
+metadata:
+  name: {{ .Values.connectionMaxscale.connection.name | quote }}
+spec:
+  maxScaleRef:
+    name: {{ .Values.connectionMaxscale.connection.maxScaleRefName | quote }}
+  username: {{ .Values.connectionMaxscale.connection.username | quote }}
+  passwordSecretKeyRef:
+    name: {{ .Values.connectionMaxscale.connection.passwordSecretKeyRefName | quote }}
+    key: {{ .Values.connectionMaxscale.connection.passwordSecretKeyRefKey | quote }}
+  secretName: {{ .Values.connectionMaxscale.connection.secretName | quote }}
+  port: {{ .Values.connectionMaxscale.connection.port | quote }}
+  healthCheck:
+    interval: {{ .Values.connectionMaxscale.connection.healthCheckInterval | quote }}
+    retryInterval: {{ .Values.connectionMaxscale.healthCheck.retryInterval | quote }}

@@ -1,0 +1,47 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-galera-production
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraProduction.rootPasswordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraProduction.rootPasswordSecretKeyRef.key | quote }}
+  storage:
+    size: {{ .Values.mariadbGaleraProduction.storage.size | default "10Gi" }}
+  replicas: {{ .Values.mariadbGaleraProduction.replicas | default 3 }}
+  galera:
+    enabled: {{ .Values.mariadbGaleraProduction.galera.enabled | default true }}
+  metrics:
+    enabled: {{ .Values.mariadbGaleraProduction.metrics.enabled | default true }}
+  tls:
+    enabled: {{ .Values.mariadbGaleraProduction.tls.enabled | default true }}
+    required: {{ .Values.mariadbGaleraProduction.tls.required | default true }}
+  updateStrategy:
+    type: {{ .Values.mariadbGaleraProduction.updateStrategy.type | default "ReplicasFirstPrimaryLast" }}
+  resources:
+    requests:
+      cpu: {{ .Values.mariadbGaleraProduction.resources.requests.cpu | default "1" }}
+      memory: {{ .Values.mariadbGaleraProduction.resources.requests.memory | default "4Gi" }}
+    limits:
+      memory: {{ .Values.mariadbGaleraProduction.resources.limits.memory | default "4Gi" }}
+  livenessProbe:
+    periodSeconds: {{ .Values.mariadbGaleraProduction.livenessProbe.periodSeconds | default 5 }}
+    timeoutSeconds: {{ .Values.mariadbGaleraProduction.livenessProbe.timeoutSeconds | default 5 }}
+  readinessProbe:
+    periodSeconds: {{ .Values.mariadbGaleraProduction.readinessProbe.periodSeconds | default 5 }}
+    timeoutSeconds: {{ .Values.mariadbGaleraProduction.readinessProbe.timeoutSeconds | default 5 }}
+  startupProbe:
+    failureThreshold: {{ .Values.mariadbGaleraProduction.startupProbe.failureThreshold | default 10 }}
+    periodSeconds: {{ .Values.mariadbGaleraProduction.startupProbe.periodSeconds | default 5 }}
+    timeoutSeconds: {{ .Values.mariadbGaleraProduction.startupProbe.timeoutSeconds | default 5 }}
+  myCnf: |
+    {{- .Values.mariadbGaleraProduction.myCnf | nindent 4 }}
+  nodeSelector:
+    kubernetes.io/arch: {{ .Values.mariadbGaleraProduction.nodeSelector.arch | default "amd64" }}
+  affinity:
+    antiAffinityEnabled: {{ .Values.mariadbGaleraProduction.affinity.antiAffinityEnabled | default true }}
+  podDisruptionBudget:
+    maxUnavailable: {{ .Values.mariadbGaleraProduction.podDisruptionBudget.maxUnavailable | default "66%" }}
+  priorityClassName: {{ .Values.mariadbGaleraProduction.priorityClassName | default "system-node-critical" }}

@@ -1,0 +1,35 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MaxScale
+metadata:
+  name: {{ .Values.maxscaleReplication.name }}
+spec:
+  replicas: {{ .Values.maxscaleReplication.replicas }}
+  mariaDbRef:
+    name: {{ .Values.maxscaleReplication.mariaDbRef.name }}
+  services:
+{{ toYaml .Values.maxscaleReplication.services | indent 4 }}
+  monitor:
+{{ toYaml .Values.maxscaleReplication.monitor | indent 4 }}
+  admin:
+    port: {{ .Values.maxscaleReplication.admin.port }}
+    guiEnabled: {{ .Values.maxscaleReplication.admin.guiEnabled }}
+  config:
+{{ toYaml .Values.maxscaleReplication.config | indent 4 }}
+  auth:
+    generate: {{ .Values.maxscaleReplication.auth.generate }}
+  kubernetesService:
+    type: {{ .Values.maxscaleReplication.kubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleReplication.kubernetesService.annotations.metallbLoadBalancerIP }}
+  guiKubernetesService:
+    type: {{ .Values.maxscaleReplication.guiKubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleReplication.guiKubernetesService.annotations.metallbLoadBalancerIP }}
+  connection:
+    secretName: {{ .Values.maxscaleReplication.connection.secretName }}
+    port: {{ .Values.maxscaleReplication.connection.port }}
+  metrics:
+    enabled: {{ .Values.maxscaleReplication.metrics.enabled }}
+  requeueInterval: {{ .Values.maxscaleReplication.requeueInterval }}

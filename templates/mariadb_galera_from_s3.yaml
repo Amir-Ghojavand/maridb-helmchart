@@ -1,0 +1,74 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-galera-from-s3
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraFromS3.rootPasswordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraFromS3.rootPasswordSecretKeyRef.key | quote }}
+  storage:
+    size: {{ .Values.mariadbGaleraFromS3.storage.size | default "1Gi" }}
+  replicas: {{ .Values.mariadbGaleraFromS3.replicas | default 3 }}
+  galera:
+    enabled: {{ .Values.mariadbGaleraFromS3.galera.enabled | default true }}
+  bootstrapFrom:
+    s3:
+      bucket: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.s3.bucket | quote }}
+      prefix: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.s3.prefix | quote }}
+      endpoint: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.s3.endpoint | quote }}
+      accessKeyIdSecretKeyRef:
+        name: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.s3.accessKeyIdSecretKeyRef.name | quote }}
+        key: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.s3.accessKeyIdSecretKeyRef.key | quote }}
+      secretAccessKeySecretKeyRef:
+        name: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.s3.secretAccessKeySecretKeyRef.name | quote }}
+        key: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.s3.secretAccessKeySecretKeyRef.key | quote }}
+      tls:
+        enabled: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.s3.tls.enabled | default true }}
+        caSecretKeyRef:
+          name: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.s3.tls.caSecretKeyRef.name | quote }}
+          key: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.s3.tls.caSecretKeyRef.key | quote }}
+    targetRecoveryTime: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.targetRecoveryTime | quote }}
+    stagingStorage:
+      persistentVolumeClaim:
+        resources:
+          requests:
+            storage: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.stagingStorage.persistentVolumeClaim.resources.requests.storage | default "1Gi" }}
+        accessModes:
+          - {{ .Values.mariadbGaleraFromS3.bootstrapFrom.stagingStorage.persistentVolumeClaim.accessModes | default "ReadWriteOnce" }}
+    restoreJob:
+      metadata:
+        labels:
+          sidecar.istio.io/inject: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.restoreJob.metadata.labels.sidecarIstioIoInject | quote }}
+      args:
+        - {{ .Values.mariadbGaleraFromS3.bootstrapFrom.restoreJob.args.verbose | quote }}
+      resources:
+        requests:
+          cpu: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.restoreJob.resources.requests.cpu | default "100m" }}
+          memory: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.restoreJob.resources.requests.memory | default "128Mi" }}
+        limits:
+          memory: {{ .Values.mariadbGaleraFromS3.bootstrapFrom.restoreJob.resources.limits.memory | default "1Gi" }}
+  service:
+    type: {{ .Values.mariadbGaleraFromS3.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraFromS3.service.metadata.annotations.metallb | quote }}
+  primaryService:
+    type: {{ .Values.mariadbGaleraFromS3.primaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraFromS3.primaryService.metadata.annotations.metallb | quote }}
+  secondaryService:
+    type: {{ .Values.mariadbGaleraFromS3.secondaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraFromS3.secondaryService.metadata.annotations.metallb | quote }}
+  metrics:
+    enabled: {{ .Values.mariadbGaleraFromS3.metrics.enabled | default true }}
+  resources:
+    requests:
+      cpu: {{ .Values.mariadbGaleraFromS3.resources.requests.cpu | default "100m" }}
+      memory: {{ .Values.mariadbGaleraFromS3.resources.requests.memory | default "128Mi" }}
+    limits:
+      memory: {{ .Values.mariadbGaleraFromS3.resources.limits.memory | default "1Gi" }}

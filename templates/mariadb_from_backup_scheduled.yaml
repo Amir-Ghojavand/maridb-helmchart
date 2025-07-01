@@ -1,0 +1,27 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-from-backup-scheduled
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  storage:
+    size: {{ .Values.mariadbFromBackupScheduled.storage.size | default "1Gi" }}
+  bootstrapFrom:
+    backupRef:
+      name: {{ .Values.mariadbFromBackupScheduled.bootstrapFrom.backupRef.name | quote }}
+    targetRecoveryTime: {{ .Values.mariadbFromBackupScheduled.bootstrapFrom.targetRecoveryTime | quote }}
+    restoreJob:
+      metadata:
+        labels:
+          sidecar.istio.io/inject: {{ .Values.mariadbFromBackupScheduled.bootstrapFrom.restoreJob.metadata.labels.sidecarIstioIoInject | quote }}
+      args:
+        - {{ .Values.mariadbFromBackupScheduled.bootstrapFrom.restoreJob.args.verbose | quote }}
+      affinity:
+        antiAffinityEnabled: {{ .Values.mariadbFromBackupScheduled.bootstrapFrom.restoreJob.affinity.antiAffinityEnabled | default true }}
+      resources:
+        requests:
+          cpu: {{ .Values.mariadbFromBackupScheduled.bootstrapFrom.restoreJob.resources.requests.cpu | default "100m" }}
+          memory: {{ .Values.mariadbFromBackupScheduled.bootstrapFrom.restoreJob.resources.requests.memory | default "128Mi" }}
+        limits:
+          memory: {{ .Values.mariadbFromBackupScheduled.bootstrapFrom.restoreJob.resources.limits.memory | default "1Gi" }}

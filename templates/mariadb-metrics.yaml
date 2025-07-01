@@ -1,0 +1,16 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ .Values.mariadbMetrics.name }}
+spec:
+  storage:
+    size: {{ .Values.mariadbMetrics.storage.size }}
+
+  service:
+    type: {{ .Values.mariadbMetrics.service.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbMetrics.service.annotations.metallbLoadBalancerIP }}
+
+  metrics:
+    enabled: {{ .Values.mariadbMetrics.metrics.enabled }}

@@ -1,0 +1,27 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-from-nfs
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  storage:
+    size: {{ .Values.mariadbFromNfs.storage.size | default "1Gi" }}
+  bootstrapFrom:
+    volume:
+      nfs:
+        server: {{ .Values.mariadbFromNfs.bootstrapFrom.volume.nfs.server | quote }}
+        path: {{ .Values.mariadbFromNfs.bootstrapFrom.volume.nfs.path | quote }}
+    targetRecoveryTime: {{ .Values.mariadbFromNfs.bootstrapFrom.targetRecoveryTime | quote }}
+    restoreJob:
+      metadata:
+        labels:
+          sidecar.istio.io/inject: {{ .Values.mariadbFromNfs.bootstrapFrom.restoreJob.metadata.labels.sidecarIstioIoInject | quote }}
+      args:
+        - {{ .Values.mariadbFromNfs.bootstrapFrom.restoreJob.args.verbose | quote }}
+      resources:
+        requests:
+          cpu: {{ .Values.mariadbFromNfs.bootstrapFrom.restoreJob.resources.requests.cpu | default "100m" }}
+          memory: {{ .Values.mariadbFromNfs.bootstrapFrom.restoreJob.resources.requests.memory | default "128Mi" }}
+        limits:
+          memory: {{ .Values.mariadbFromNfs.bootstrapFrom.restoreJob.resources.limits.memory | default "1Gi" }}

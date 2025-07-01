@@ -1,236 +1,35 @@
 apiVersion: k8s.mariadb.com/v1alpha1
 kind: Backup
 metadata:
-  name: {{ include "mariadb.fullname" . }}-backup
-  labels:
-    {{- include "mariadb.labels" . | nindent 4 }}
+  name: {{ .Values.backup.name | quote }}
 spec:
   mariaDbRef:
-    name: {{ .Values.backup.mariaDbRefName | default (include "mariadb.fullname" .) }}
+    name: {{ .Values.backup.mariaDbRefName | quote }}
   inheritMetadata:
     annotations:
-      {{- toYaml .Values.backup.inheritMetadata.annotations | nindent 6 }}
+      database.myorg.io: {{ .Values.backup.inheritMetadata.annotations.databaseMyorgIo | quote }}
   podMetadata:
     labels:
-      {{- toYaml .Values.backup.podMetadata.labels | nindent 6 }}
-  serviceAccountName: {{ .Values.backup.serviceAccountName | default (printf "%s-backup" (include "mariadb.fullname" .)) }}
-  compression: {{ .Values.backup.compression | default "gzip" }}
+      sidecar.istio.io/inject: {{ .Values.backup.podMetadata.labels.sidecarIstioIoInject | quote }}
+  serviceAccountName: {{ .Values.backup.serviceAccountName | quote }}
+  compression: {{ .Values.backup.compression | quote }}
   storage:
     persistentVolumeClaim:
       resources:
         requests:
-          storage: {{ .Values.backup.storage.persistentVolumeClaim.resources.requests.storage | default "100Mi" }}
+          storage: {{ .Values.backup.storage.persistentVolumeClaim.resources.requests.storage | quote }}
       accessModes:
-        - {{ .Values.backup.storage.persistentVolumeClaim.accessModes | default "ReadWriteOnce" }}
-    s3:
-      bucket: {{ .Values.backup.storage.s3.bucket | quote }}
-      prefix: {{ .Values.backup.storage.s3.prefix | quote }}
-      endpoint: {{ .Values.backup.storage.s3.endpoint | quote }}
-      region: {{ .Values.backup.storage.s3.region | quote }}
-      accessKeyIdSecretKeyRef:
-        name: {{ .Values.backup.storage.s3.accessKeyIdSecretKeyRef.name | quote }}
-        key: {{ .Values.backup.storage.s3.accessKeyIdSecretKeyRef.key | quote }}
-      secretAccessKeySecretKeyRef:
-        name: {{ .Values.backup.storage.s3.secretAccessKeySecretKeyRef.name | quote }}
-        key: {{ .Values.backup.storage.s3.secretAccessKeySecretKeyRef.key | quote }}
-      tls:
-        enabled: {{ .Values.backup.storage.s3.tls.enabled | default true }}
-        caSecretKeyRef:
-          name: {{ .Values.backup.storage.s3.tls.caSecretKeyRef.name | quote }}
-          key: {{ .Values.backup.storage.s3.tls.caSecretKeyRef.key | quote }}
-  stagingStorage:
-    persistentVolumeClaim:
-      resources:
-        requests:
-          storage: {{ .Values.backup.stagingStorage.persistentVolumeClaim.resources.requests.storage | default "1Gi" }}
-      accessModes:
-        - {{ .Values.backup.stagingStorage.persistentVolumeClaim.accessModes | default "ReadWriteOnce" }}
+        - {{ .Values.backup.storage.persistentVolumeClaim.accessModes | quote }}
   args:
-    {{- toYaml .Values.backup.args | nindent 4 }}
+    - {{ .Values.backup.args.singleTransaction | quote }}
+    - {{ .Values.backup.args.allDatabases | quote }}
+    - {{ .Values.backup.args.verbose | quote }}
   resources:
     requests:
-      cpu: {{ .Values.backup.resources.requests.cpu | default "100m" }}
-      memory: {{ .Values.backup.resources.requests.memory | default "128Mi" }}
+      cpu: {{ .Values.backup.resources.requests.cpu | quote }}
+      memory: {{ .Values.backup.resources.requests.memory | quote }}
     limits:
-      cpu: {{ .Values.backup.resources.limits.cpu | default "300m" }}
-      memory: {{ .Values.backup.resources.limits.memory | default "512Mi" }}
+      cpu: {{ .Values.backup.resources.limits.cpu | quote }}
+      memory: {{ .Values.backup.resources.limits.memory | quote }}
   affinity:
-    antiAffinityEnabled: {{ .Values.backup.affinity.antiAffinityEnabled | default true }}
----
-apiVersion: k8s.mariadb.com/v1alpha1
-kind: Backup
-metadata:
-  name: {{ include "mariadb.fullname" . }}-backup-nfs
-  labels:
-    {{- include "mariadb.labels" . | nindent 4 }}
-spec:
-  mariaDbRef:
-    name: {{ .Values.backupNfs.mariaDbRefName | default (include "mariadb.fullname" .) }}
-  storage:
-    volume:
-      nfs:
-        server: {{ .Values.backupNfs.storage.volume.nfs.server | quote }}
-        path: {{ .Values.backupNfs.storage.volume.nfs.path | quote }}
----
-apiVersion: k8s.mariadb.com/v1alpha1
-kind: Backup
-metadata:
-  name: {{ include "mariadb.fullname" . }}-backup-retention
-  labels:
-    {{- include "mariadb.labels" . | nindent 4 }}
-spec:
-  mariaDbRef:
-    name: {{ .Values.backupRetention.mariaDbRefName | default (include "mariadb.fullname" .) }}
-  maxRetention: {{ .Values.backupRetention.maxRetention | default "720h" }}
-  storage:
-    persistentVolumeClaim:
-      resources:
-        requests:
-          storage: {{ .Values.backupRetention.storage.persistentVolumeClaim.resources.requests.storage | default "100Mi" }}
-      accessModes:
-        - {{ .Values.backupRetention.storage.persistentVolumeClaim.accessModes | default "ReadWriteOnce" }}
----
-apiVersion: k8s.mariadb.com/v1alpha1
-kind: Backup
-metadata:
-  name: {{ include "mariadb.fullname" . }}-backup-s3-staging
-  labels:
-    {{- include "mariadb.labels" . | nindent 4 }}
-spec:
-  mariaDbRef:
-    name: {{ .Values.backupS3Staging.mariaDbRefName | default (include "mariadb.fullname" .) }}
-  maxRetention: {{ .Values.backupS3Staging.maxRetention | default "720h" }}
-  compression: {{ .Values.backupS3Staging.compression | default "gzip" }}
-  storage:
-    s3:
-      bucket: {{ .Values.backupS3Staging.storage.s3.bucket | quote }}
-      prefix: {{ .Values.backupS3Staging.storage.s3.prefix | quote }}
-      endpoint: {{ .Values.backupS3Staging.storage.s3.endpoint | quote }}
-      region: {{ .Values.backupS3Staging.storage.s3.region | quote }}
-      accessKeyIdSecretKeyRef:
-        name: {{ .Values.backupS3Staging.storage.s3.accessKeyIdSecretKeyRef.name | quote }}
-        key: {{ .Values.backupS3Staging.storage.s3.accessKeyIdSecretKeyRef.key | quote }}
-      secretAccessKeySecretKeyRef:
-        name: {{ .Values.backupS3Staging.storage.s3.secretAccessKeySecretKeyRef.name | quote }}
-        key: {{ .Values.backupS3Staging.storage.s3.secretAccessKeySecretKeyRef.key | quote }}
-      tls:
-        enabled: {{ .Values.backupS3Staging.storage.s3.tls.enabled | default true }}
-        caSecretKeyRef:
-          name: {{ .Values.backupS3Staging.storage.s3.tls.caSecretKeyRef.name | quote }}
-          key: {{ .Values.backupS3Staging.storage.s3.tls.caSecretKeyRef.key | quote }}
-  stagingStorage:
-    persistentVolumeClaim:
-      resources:
-        requests:
-          storage: {{ .Values.backupS3Staging.stagingStorage.persistentVolumeClaim.resources.requests.storage | default "1Gi" }}
-      accessModes:
-        - {{ .Values.backupS3Staging.stagingStorage.persistentVolumeClaim.accessModes | default "ReadWriteOnce" }}
----
-apiVersion: k8s.mariadb.com/v1alpha1
-kind: Backup
-metadata:
-  name: {{ include "mariadb.fullname" . }}-backup-specific-databases
-  labels:
-    {{- include "mariadb.labels" . | nindent 4 }}
-spec:
-  mariaDbRef:
-    name: {{ .Values.backupSpecificDatabases.mariaDbRefName | default (include "mariadb.fullname" .) }}
-  databases:
-    {{- toYaml .Values.backupSpecificDatabases.databases | nindent 4 }}
-  maxRetention: {{ .Values.backupSpecificDatabases.maxRetention | default "720h" }}
-  storage:
-    s3:
-      bucket: {{ .Values.backupSpecificDatabases.storage.s3.bucket | quote }}
-      endpoint: {{ .Values.backupSpecificDatabases.storage.s3.endpoint | quote }}
-      region: {{ .Values.backupSpecificDatabases.storage.s3.region | quote }}
-      accessKeyIdSecretKeyRef:
-        name: {{ .Values.backupSpecificDatabases.storage.s3.accessKeyIdSecretKeyRef.name | quote }}
-        key: {{ .Values.backupSpecificDatabases.storage.s3.accessKeyIdSecretKeyRef.key | quote }}
-      secretAccessKeySecretKeyRef:
-        name: {{ .Values.backupSpecificDatabases.storage.s3.secretAccessKeySecretKeyRef.name | quote }}
-        key: {{ .Values.backupSpecificDatabases.storage.s3.secretAccessKeySecretKeyRef.key | quote }}
-      tls:
-        enabled: {{ .Values.backupSpecificDatabases.storage.s3.tls.enabled | default true }}
-        caSecretKeyRef:
-          name: {{ .Values.backupSpecificDatabases.storage.s3.tls.caSecretKeyRef.name | quote }}
-          key: {{ .Values.backupSpecificDatabases.storage.s3.tls.caSecretKeyRef.key | quote }}
----
-apiVersion: k8s.mariadb.com/v1alpha1
-kind: Backup
-metadata:
-  name: {{ include "mariadb.fullname" . }}-backup-scheduled
-  labels:
-    {{- include "mariadb.labels" . | nindent 4 }}
-spec:
-  mariaDbRef:
-    name: {{ .Values.backupScheduled.mariaDbRefName | default (include "mariadb.fullname" .) }}
-  schedule:
-    cron: {{ .Values.backupScheduled.schedule.cron | quote }}
-    suspend: {{ .Values.backupScheduled.schedule.suspend | default false }}
-  timeZone: {{ .Values.backupScheduled.timeZone | default "UTC" }}
-  maxRetention: {{ .Values.backupScheduled.maxRetention | default "720h" }}
-  compression: {{ .Values.backupScheduled.compression | default "bzip2" }}
-  storage:
-    s3:
-      bucket: {{ .Values.backupScheduled.storage.s3.bucket | quote }}
-      endpoint: {{ .Values.backupScheduled.storage.s3.endpoint | quote }}
-      accessKeyIdSecretKeyRef:
-        name: {{ .Values.backupScheduled.storage.s3.accessKeyIdSecretKeyRef.name | quote }}
-        key: {{ .Values.backupScheduled.storage.s3.accessKeyIdSecretKeyRef.key | quote }}
-      secretAccessKeySecretKeyRef:
-        name: {{ .Values.backupScheduled.storage.s3.secretAccessKeySecretKeyRef.name | quote }}
-        key: {{ .Values.backupScheduled.storage.s3.secretAccessKeySecretKeyRef.key | quote }}
-      tls:
-        enabled: {{ .Values.backupScheduled.storage.s3.tls.enabled | default true }}
-        caSecretKeyRef:
-          name: {{ .Values.backupScheduled.storage.s3.tls.caSecretKeyRef.name | quote }}
-          key: {{ .Values.backupScheduled.storage.s3.tls.caSecretKeyRef.key | quote }}
-  stagingStorage:
-    persistentVolumeClaim:
-      resources:
-        requests:
-          storage: {{ .Values.backupScheduled.stagingStorage.persistentVolumeClaim.resources.requests.storage | default "10Gi" }}
-      accessModes:
-        - {{ .Values.backupScheduled.stagingStorage.persistentVolumeClaim.accessModes | default "ReadWriteOnce" }}
-  args:
-    {{- toYaml .Values.backupScheduled.args | nindent 4 }}
-  logLevel: {{ .Values.backupScheduled.logLevel | default "info" }}
-  resources:
-    requests:
-      cpu: {{ .Values.backupScheduled.resources.requests.cpu | default "100m" }}
-      memory: {{ .Values.backupScheduled.resources.requests.memory | default "128Mi" }}
-    limits:
-      cpu: {{ .Values.backupScheduled.resources.limits.cpu | default "300m" }}
-      memory: {{ .Values.backupScheduled.resources.limits.memory | default "512Mi" }}
-  affinity:
-    antiAffinityEnabled: {{ .Values.backupScheduled.affinity.antiAffinityEnabled | default true }}
----
-apiVersion: k8s.mariadb.com/v1alpha1
-kind: Restore
-metadata:
-  name: {{ include "mariadb.fullname" . }}-restore
-  labels:
-    {{- include "mariadb.labels" . | nindent 4 }}
-spec:
-  mariaDbRef:
-    name: {{ .Values.restore.mariaDbRefName | default (include "mariadb.fullname" .) }}
-  backupRef:
-    name: {{ .Values.restore.backupRefName | default (printf "%s-backup" (include "mariadb.fullname" .)) }}
-  inheritMetadata:
-    annotations:
-      {{- toYaml .Values.restore.inheritMetadata.annotations | nindent 6 }}
-  podMetadata:
-    labels:
-      {{- toYaml .Values.restore.podMetadata.labels | nindent 6 }}
-  serviceAccountName: {{ .Values.restore.serviceAccountName | default (printf "%s-restore" (include "mariadb.fullname" .)) }}
-  args:
-    {{- toYaml .Values.restore.args | nindent 4 }}
-  resources:
-    requests:
-      cpu: {{ .Values.restore.resources.requests.cpu | default "100m" }}
-      memory: {{ .Values.restore.resources.requests.memory | default "128Mi" }}
-    limits:
-      cpu: {{ .Values.restore.resources.limits.cpu | default "300m" }}
-      memory: {{ .Values.restore.resources.limits.memory | default "512Mi" }}
-  affinity:
-    antiAffinityEnabled: {{ .Values.restore.affinity.antiAffinityEnabled | default true }}
+    antiAffinityEnabled: {{ .Values.backup.affinity.antiAffinityEnabled | quote }}

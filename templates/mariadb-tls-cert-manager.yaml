@@ -1,0 +1,33 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ .Values.mariadbTlsCertManager.name }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbTlsCertManager.rootPasswordSecretKeyRef.name }}
+    key: {{ .Values.mariadbTlsCertManager.rootPasswordSecretKeyRef.key }}
+
+  storage:
+    size: {{ .Values.mariadbTlsCertManager.storage.size }}
+
+  service:
+    type: {{ .Values.mariadbTlsCertManager.service.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbTlsCertManager.service.annotations.metallbLoadBalancerIP }}
+
+  myCnf: |
+{{ .Values.mariadbTlsCertManager.myCnf | indent 4 }}
+
+  metrics:
+    enabled: {{ .Values.mariadbTlsCertManager.metrics.enabled }}
+
+  tls:
+    enabled: {{ .Values.mariadbTlsCertManager.tls.enabled }}
+    required: {{ .Values.mariadbTlsCertManager.tls.required }}
+    serverCertIssuerRef:
+      name: {{ .Values.mariadbTlsCertManager.tls.serverCertIssuerRef.name }}
+      kind: {{ .Values.mariadbTlsCertManager.tls.serverCertIssuerRef.kind }}
+    clientCertIssuerRef:
+      name: {{ .Values.mariadbTlsCertManager.tls.clientCertIssuerRef.name }}
+      kind: {{ .Values.mariadbTlsCertManager.tls.clientCertIssuerRef.kind }}

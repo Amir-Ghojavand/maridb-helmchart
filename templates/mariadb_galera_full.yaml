@@ -1,0 +1,162 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-galera-full
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraFull.rootPasswordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraFull.rootPasswordSecretKeyRef.key | quote }}
+  username: {{ .Values.mariadbGaleraFull.username | quote }}
+  passwordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraFull.passwordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraFull.passwordSecretKeyRef.key | quote }}
+  database: {{ .Values.mariadbGaleraFull.database | quote }}
+  storage:
+    size: {{ .Values.mariadbGaleraFull.storage.size | default "1Gi" }}
+    storageClassName: {{ .Values.mariadbGaleraFull.storage.storageClassName | default "standard" }}
+    resizeInUseVolumes: {{ .Values.mariadbGaleraFull.storage.resizeInUseVolumes | default true }}
+    waitForVolumeResize: {{ .Values.mariadbGaleraFull.storage.waitForVolumeResize | default true }}
+    volumeClaimTemplate:
+      accessModes:
+      - {{ .Values.mariadbGaleraFull.storage.volumeClaimTemplate.accessModes | default "ReadWriteOnce" }}
+      resources:
+        requests:
+          storage: {{ .Values.mariadbGaleraFull.storage.volumeClaimTemplate.resources.requests.storage | default "1Gi" }}
+      storageClassName: {{ .Values.mariadbGaleraFull.storage.volumeClaimTemplate.storageClassName | default "standard" }}
+  replicas: {{ .Values.mariadbGaleraFull.replicas | default 3 }}
+  replicasAllowEvenNumber: {{ .Values.mariadbGaleraFull.replicasAllowEvenNumber | default false }}
+  maxScale:
+    enabled: {{ .Values.mariadbGaleraFull.maxScale.enabled | default true }}
+    kubernetesService:
+      type: {{ .Values.mariadbGaleraFull.maxScale.kubernetesService.type | default "LoadBalancer" }}
+      metadata:
+        annotations:
+          metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraFull.maxScale.kubernetesService.metadata.annotations.metallb | quote }}
+    connection:
+      secretName: {{ .Values.mariadbGaleraFull.maxScale.connection.secretName | quote }}
+      port: {{ .Values.mariadbGaleraFull.maxScale.connection.port | default 3306 }}
+    metrics:
+      enabled: {{ .Values.mariadbGaleraFull.maxScale.metrics.enabled | default true }}
+    tls:
+      enabled: {{ .Values.mariadbGaleraFull.maxScale.tls.enabled | default true }}
+  galera:
+    enabled: {{ .Values.mariadbGaleraFull.galera.enabled | default true }}
+    primary:
+      podIndex: {{ .Values.mariadbGaleraFull.galera.primary.podIndex | default 0 }}
+      automaticFailover: {{ .Values.mariadbGaleraFull.galera.primary.automaticFailover | default true }}
+    sst: {{ .Values.mariadbGaleraFull.galera.sst | default "mariabackup" }}
+    availableWhenDonor: {{ .Values.mariadbGaleraFull.galera.availableWhenDonor | default false }}
+    galeraLibPath: {{ .Values.mariadbGaleraFull.galera.galeraLibPath | quote }}
+    replicaThreads: {{ .Values.mariadbGaleraFull.galera.replicaThreads | default 1 }}
+    providerOptions:
+      gcs.fc_limit: {{ .Values.mariadbGaleraFull.galera.providerOptions.gcsFcLimit | quote }}
+    agent:
+      image: {{ .Values.mariadbGaleraFull.galera.agent.image | quote }}
+      port: {{ .Values.mariadbGaleraFull.galera.agent.port | default 5555 }}
+      kubernetesAuth:
+        enabled: {{ .Values.mariadbGaleraFull.galera.agent.kubernetesAuth.enabled | default true }}
+      gracefulShutdownTimeout: {{ .Values.mariadbGaleraFull.galera.agent.gracefulShutdownTimeout | default "1s" }}
+    recovery:
+      enabled: {{ .Values.mariadbGaleraFull.galera.recovery.enabled | default true }}
+      minClusterSize: {{ .Values.mariadbGaleraFull.galera.recovery.minClusterSize | default 1 }}
+      forceClusterBootstrapInPod: {{ .Values.mariadbGaleraFull.galera.recovery.forceClusterBootstrapInPod | quote }}
+      clusterMonitorInterval: {{ .Values.mariadbGaleraFull.galera.recovery.clusterMonitorInterval | default "10s" }}
+      clusterHealthyTimeout: {{ .Values.mariadbGaleraFull.galera.recovery.clusterHealthyTimeout | default "30s" }}
+      clusterBootstrapTimeout: {{ .Values.mariadbGaleraFull.galera.recovery.clusterBootstrapTimeout | default "10m" }}
+      podRecoveryTimeout: {{ .Values.mariadbGaleraFull.galera.recovery.podRecoveryTimeout | default "5m" }}
+      podSyncTimeout: {{ .Values.mariadbGaleraFull.galera.recovery.podSyncTimeout | default "5m" }}
+      job:
+        metadata:
+          labels:
+            sidecar.istio.io/inject: {{ .Values.mariadbGaleraFull.galera.recovery.job.metadata.labels.sidecarIstioIoInject | quote }}
+        resources:
+          requests:
+            cpu: {{ .Values.mariadbGaleraFull.galera.recovery.job.resources.requests.cpu | default "100m" }}
+            memory: {{ .Values.mariadbGaleraFull.galera.recovery.job.resources.requests.memory | default "128Mi" }}
+          limits:
+            memory: {{ .Values.mariadbGaleraFull.galera.recovery.job.resources.limits.memory | default "256Mi" }}
+    initContainer:
+      image: {{ .Values.mariadbGaleraFull.galera.initContainer.image | quote }}
+    initJob:
+      metadata:
+        labels:
+          sidecar.istio.io/inject: {{ .Values.mariadbGaleraFull.galera.initJob.metadata.labels.sidecarIstioIoInject | quote }}
+      resources:
+        requests:
+          cpu: {{ .Values.mariadbGaleraFull.galera.initJob.resources.requests.cpu | default "100m" }}
+          memory: {{ .Values.mariadbGaleraFull.galera.initJob.resources.requests.memory | default "128Mi" }}
+        limits:
+          memory: {{ .Values.mariadbGaleraFull.galera.initJob.resources.limits.memory | default "1Gi" }}
+    config:
+      reuseStorageVolume: {{ .Values.mariadbGaleraFull.galera.config.reuseStorageVolume | default false }}
+      volumeClaimTemplate:
+        resources:
+          requests:
+            storage: {{ .Values.mariadbGaleraFull.galera.config.volumeClaimTemplate.resources.requests.storage | default "300Mi" }}
+        accessModes:
+          - {{ .Values.mariadbGaleraFull.galera.config.volumeClaimTemplate.accessModes | default "ReadWriteOnce" }}
+  service:
+    type: {{ .Values.mariadbGaleraFull.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraFull.service.metadata.annotations.metallb | quote }}
+  connection:
+    secretName: {{ .Values.mariadbGaleraFull.connection.secretName | quote }}
+    secretTemplate:
+      key: {{ .Values.mariadbGaleraFull.connection.secretTemplate.key | quote }}
+  primaryService:
+    type: {{ .Values.mariadbGaleraFull.primaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraFull.primaryService.metadata.annotations.metallb | quote }}
+  primaryConnection:
+    secretName: {{ .Values.mariadbGaleraFull.primaryConnection.secretName | quote }}
+    secretTemplate:
+      key: {{ .Values.mariadbGaleraFull.primaryConnection.secretTemplate.key | quote }}
+  secondaryService:
+    type: {{ .Values.mariadbGaleraFull.secondaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraFull.secondaryService.metadata.annotations.metallb | quote }}
+  secondaryConnection:
+    secretName: {{ .Values.mariadbGaleraFull.secondaryConnection.secretName | quote }}
+    secretTemplate:
+      key: {{ .Values.mariadbGaleraFull.secondaryConnection.secretTemplate.key | quote }}
+  affinity:
+    antiAffinityEnabled: {{ .Values.mariadbGaleraFull.affinity.antiAffinityEnabled | default true }}
+  tolerations:
+    - key: {{ .Values.mariadbGaleraFull.tolerations[0].key | quote }}
+      operator: {{ .Values.mariadbGaleraFull.tolerations[0].operator | quote }}
+      effect: {{ .Values.mariadbGaleraFull.tolerations[0].effect | quote }}
+  podDisruptionBudget:
+    maxUnavailable: {{ .Values.mariadbGaleraFull.podDisruptionBudget.maxUnavailable | default "33%" }}
+  updateStrategy:
+    type: {{ .Values.mariadbGaleraFull.updateStrategy.type | default "ReplicasFirstPrimaryLast" }}
+    autoUpdateDataPlane: {{ .Values.mariadbGaleraFull.updateStrategy.autoUpdateDataPlane | default true }}
+  myCnf: |
+    {{- .Values.mariadbGaleraFull.myCnf | nindent 4 }}
+  timeZone: {{ .Values.mariadbGaleraFull.timeZone | default "UTC" }}
+  resources:
+    requests:
+      cpu: {{ .Values.mariadbGaleraFull.resources.requests.cpu | default "100m" }}
+      memory: {{ .Values.mariadbGaleraFull.resources.requests.memory | default "128Mi" }}
+    limits:
+      memory: {{ .Values.mariadbGaleraFull.resources.limits.memory | default "1Gi" }}
+  livenessProbe:
+    periodSeconds: {{ .Values.mariadbGaleraFull.livenessProbe.periodSeconds | default 5 }}
+    timeoutSeconds: {{ .Values.mariadbGaleraFull.livenessProbe.timeoutSeconds | default 5 }}
+  readinessProbe:
+    periodSeconds: {{ .Values.mariadbGaleraFull.readinessProbe.periodSeconds | default 5 }}
+    timeoutSeconds: {{ .Values.mariadbGaleraFull.readinessProbe.timeoutSeconds | default 5 }}
+  startupProbe:
+    failureThreshold: {{ .Values.mariadbGaleraFull.startupProbe.failureThreshold | default 10 }}
+    periodSeconds: {{ .Values.mariadbGaleraFull.startupProbe.periodSeconds | default 5 }}
+    timeoutSeconds: {{ .Values.mariadbGaleraFull.startupProbe.timeoutSeconds | default 5 }}
+  metrics:
+    enabled: {{ .Values.mariadbGaleraFull.metrics.enabled | default true }}
+  tls:
+    enabled: {{ .Values.mariadbGaleraFull.tls.enabled | default true }}
+    required: {{ .Values.mariadbGaleraFull.tls.required | default true }}
+  suspend: {{ .Values.mariadbGaleraFull.suspend | default false }}

@@ -1,0 +1,25 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-connection
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  username: {{ .Values.mariadbConnection.username | quote }}
+  database: {{ .Values.mariadbConnection.database | quote }}
+  connection:
+    secretName: {{ .Values.mariadbConnection.connection.secretName | quote }}
+    secretTemplate:
+      key: {{ .Values.mariadbConnection.connection.secretTemplate.key | quote }}
+    healthCheck:
+      interval: {{ .Values.mariadbConnection.connection.healthCheck.interval | quote }}
+      retryInterval: {{ .Values.mariadbConnection.connection.healthCheck.retryInterval | quote }}
+    params:
+      parseTime: {{ .Values.mariadbConnection.connection.params.parseTime | quote }}
+  storage:
+    size: {{ .Values.mariadbConnection.storage.size | default "1Gi" }}
+  service:
+    type: {{ .Values.mariadbConnection.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbConnection.service.metadata.annotations.metallb | quote }}

@@ -1,0 +1,37 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-metrics-full
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  storage:
+    size: {{ .Values.mariadbMetricsFull.storage.size | default "1Gi" }}
+  service:
+    type: {{ .Values.mariadbMetricsFull.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbMetricsFull.service.metadata.annotations.metallb | quote }}
+  metrics:
+    enabled: {{ .Values.mariadbMetricsFull.metrics.enabled | default true }}
+    exporter:
+      image: {{ .Values.mariadbMetricsFull.metrics.exporter.image | quote }}
+      resources:
+        requests:
+          cpu: {{ .Values.mariadbMetricsFull.metrics.exporter.resources.requests.cpu | default "50m" }}
+          memory: {{ .Values.mariadbMetricsFull.metrics.exporter.resources.requests.memory | default "64Mi" }}
+        limits:
+          cpu: {{ .Values.mariadbMetricsFull.metrics.exporter.resources.limits.cpu | default "300m" }}
+          memory: {{ .Values.mariadbMetricsFull.metrics.exporter.resources.limits.memory | default "512Mi" }}
+      port: {{ .Values.mariadbMetricsFull.metrics.exporter.port | default 9104 }}
+      affinity:
+        antiAffinityEnabled: {{ .Values.mariadbMetricsFull.metrics.exporter.affinity.antiAffinityEnabled | default true }}
+    serviceMonitor:
+      prometheusRelease: {{ .Values.mariadbMetricsFull.metrics.serviceMonitor.prometheusRelease | quote }}
+      jobLabel: {{ .Values.mariadbMetricsFull.metrics.serviceMonitor.jobLabel | quote }}
+      interval: {{ .Values.mariadbMetricsFull.metrics.serviceMonitor.interval | quote }}
+      scrapeTimeout: {{ .Values.mariadbMetricsFull.metrics.serviceMonitor.scrapeTimeout | quote }}
+    username: {{ .Values.mariadbMetricsFull.metrics.username | quote }}
+    passwordSecretKeyRef:
+      name: {{ .Values.mariadbMetricsFull.metrics.passwordSecretKeyRef.name | quote }}
+      key: {{ .Values.mariadbMetricsFull.metrics.passwordSecretKeyRef.key | quote }}

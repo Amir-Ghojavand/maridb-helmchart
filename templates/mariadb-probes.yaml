@@ -1,0 +1,20 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ .Values.mariadbProbes.name }}
+spec:
+  storage:
+    size: {{ .Values.mariadbProbes.storage.size }}
+
+  livenessProbe:
+    periodSeconds: {{ .Values.mariadbProbes.livenessProbe.periodSeconds }}
+    timeoutSeconds: {{ .Values.mariadbProbes.livenessProbe.timeoutSeconds }}
+
+  readinessProbe:
+    periodSeconds: {{ .Values.mariadbProbes.readinessProbe.periodSeconds }}
+    timeoutSeconds: {{ .Values.mariadbProbes.readinessProbe.timeoutSeconds }}
+
+  startupProbe:
+    failureThreshold: {{ .Values.mariadbProbes.startupProbe.failureThreshold }}
+    periodSeconds: {{ .Values.mariadbProbes.startupProbe.periodSeconds }}
+    timeoutSeconds: {{ .Values.mariadbProbes.startupProbe.timeoutSeconds }}

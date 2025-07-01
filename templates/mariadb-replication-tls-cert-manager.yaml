@@ -1,0 +1,53 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ .Values.mariadbReplicationTlsCertManager.name }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbReplicationTlsCertManager.rootPasswordSecretKeyRef.name }}
+    key: {{ .Values.mariadbReplicationTlsCertManager.rootPasswordSecretKeyRef.key }}
+  
+  username: {{ .Values.mariadbReplicationTlsCertManager.username }}
+  passwordSecretKeyRef:
+    name: {{ .Values.mariadbReplicationTlsCertManager.passwordSecretKeyRef.name }}
+    key: {{ .Values.mariadbReplicationTlsCertManager.passwordSecretKeyRef.key }}
+  database: {{ .Values.mariadbReplicationTlsCertManager.database }}
+
+  storage:
+    size: {{ .Values.mariadbReplicationTlsCertManager.storage.size }}
+
+  replicas: {{ .Values.mariadbReplicationTlsCertManager.replicas }}
+
+  replication:
+    enabled: {{ .Values.mariadbReplicationTlsCertManager.replication.enabled }}
+
+  service:
+    type: {{ .Values.mariadbReplicationTlsCertManager.service.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationTlsCertManager.service.annotations.metallbLoadBalancerIP }}
+
+  primaryService:
+    type: {{ .Values.mariadbReplicationTlsCertManager.primaryService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationTlsCertManager.primaryService.annotations.metallbLoadBalancerIP }}
+
+  secondaryService:
+    type: {{ .Values.mariadbReplicationTlsCertManager.secondaryService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationTlsCertManager.secondaryService.annotations.metallbLoadBalancerIP }}
+  
+  metrics:
+    enabled: {{ .Values.mariadbReplicationTlsCertManager.metrics.enabled }}
+
+  tls:
+    enabled: {{ .Values.mariadbReplicationTlsCertManager.tls.enabled }}
+    required: {{ .Values.mariadbReplicationTlsCertManager.tls.required }}
+    serverCertIssuerRef:
+      name: {{ .Values.mariadbReplicationTlsCertManager.tls.serverCertIssuerRef.name }}
+      kind: {{ .Values.mariadbReplicationTlsCertManager.tls.serverCertIssuerRef.kind }}
+    clientCertIssuerRef:
+      name: {{ .Values.mariadbReplicationTlsCertManager.tls.clientCertIssuerRef.name }}
+      kind: {{ .Values.mariadbReplicationTlsCertManager.tls.clientCertIssuerRef.kind }}

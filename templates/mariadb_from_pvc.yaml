@@ -1,0 +1,26 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-from-pvc
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  storage:
+    size: {{ .Values.mariadbFromPvc.storage.size | default "1Gi" }}
+  bootstrapFrom:
+    volume:
+      persistentVolumeClaim:
+        claimName: {{ .Values.mariadbFromPvc.bootstrapFrom.volume.persistentVolumeClaim.claimName | quote }}
+    targetRecoveryTime: {{ .Values.mariadbFromPvc.bootstrapFrom.targetRecoveryTime | quote }}
+    restoreJob:
+      metadata:
+        labels:
+          sidecar.istio.io/inject: {{ .Values.mariadbFromPvc.bootstrapFrom.restoreJob.metadata.labels.sidecarIstioIoInject | quote }}
+      args:
+        - {{ .Values.mariadbFromPvc.bootstrapFrom.restoreJob.args.verbose | quote }}
+      resources:
+        requests:
+          cpu: {{ .Values.mariadbFromPvc.bootstrapFrom.restoreJob.resources.requests.cpu | default "100m" }}
+          memory: {{ .Values.mariadbFromPvc.bootstrapFrom.restoreJob.resources.requests.memory | default "128Mi" }}
+        limits:
+          memory: {{ .Values.mariadbFromPvc.bootstrapFrom.restoreJob.resources.limits.memory | default "1Gi" }}

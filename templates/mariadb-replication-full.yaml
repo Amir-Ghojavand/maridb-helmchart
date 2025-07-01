@@ -1,0 +1,139 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ .Values.mariadbReplicationFull.name }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbReplicationFull.rootPasswordSecretKeyRef.name }}
+    key: {{ .Values.mariadbReplicationFull.rootPasswordSecretKeyRef.key }}
+
+  username: {{ .Values.mariadbReplicationFull.username }}
+  passwordSecretKeyRef:
+    name: {{ .Values.mariadbReplicationFull.passwordSecretKeyRef.name }}
+    key: {{ .Values.mariadbReplicationFull.passwordSecretKeyRef.key }}
+  database: {{ .Values.mariadbReplicationFull.database }}
+  
+  storage:
+    size: {{ .Values.mariadbReplicationFull.storage.size }}
+    storageClassName: {{ .Values.mariadbReplicationFull.storage.storageClassName }}
+    resizeInUseVolumes: {{ .Values.mariadbReplicationFull.storage.resizeInUseVolumes }}
+    waitForVolumeResize: {{ .Values.mariadbReplicationFull.storage.waitForVolumeResize }}
+    volumeClaimTemplate:
+      accessModes:
+      - {{ .Values.mariadbReplicationFull.storage.volumeClaimTemplate.accessModes }}
+      resources:
+        requests:
+          storage: {{ .Values.mariadbReplicationFull.storage.volumeClaimTemplate.resources.requests.storage }}
+      storageClassName: {{ .Values.mariadbReplicationFull.storage.volumeClaimTemplate.storageClassName }}
+
+  replicas: {{ .Values.mariadbReplicationFull.replicas }}
+  replicasAllowEvenNumber: {{ .Values.mariadbReplicationFull.replicasAllowEvenNumber }}
+
+  # maxScaleRef:
+  #   name: {{ .Values.mariadbReplicationFull.maxScaleRef.name }}
+  maxScale:
+    enabled: {{ .Values.mariadbReplicationFull.maxScale.enabled }}
+    kubernetesService:
+      type: {{ .Values.mariadbReplicationFull.maxScale.kubernetesService.type }}
+      metadata:
+        annotations:
+          metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationFull.maxScale.kubernetesService.annotations.metallbLoadBalancerIP }}
+    connection:
+      secretName: {{ .Values.mariadbReplicationFull.maxScale.connection.secretName }}
+      port: {{ .Values.mariadbReplicationFull.maxScale.connection.port }}
+    metrics:
+      enabled: {{ .Values.mariadbReplicationFull.maxScale.metrics.enabled }}
+    tls:
+      enabled: {{ .Values.mariadbReplicationFull.maxScale.tls.enabled }}
+
+  replication:
+    enabled: {{ .Values.mariadbReplicationFull.replication.enabled }}
+    primary:
+      podIndex: {{ .Values.mariadbReplicationFull.replication.primary.podIndex }}
+      automaticFailover: {{ .Values.mariadbReplicationFull.replication.primary.automaticFailover }}
+    replica:
+      waitPoint: {{ .Values.mariadbReplicationFull.replication.replica.waitPoint }}
+      gtid: {{ .Values.mariadbReplicationFull.replication.replica.gtid }}
+      replPasswordSecretKeyRef:
+        name: {{ .Values.mariadbReplicationFull.replication.replica.replPasswordSecretKeyRef.name }}
+        key: {{ .Values.mariadbReplicationFull.replication.replica.replPasswordSecretKeyRef.key }}
+      connectionTimeout: {{ .Values.mariadbReplicationFull.replication.replica.connectionTimeout }}
+      connectionRetries: {{ .Values.mariadbReplicationFull.replication.replica.connectionRetries }}
+      syncTimeout: {{ .Values.mariadbReplicationFull.replication.replica.syncTimeout }}
+    syncBinlog: {{ .Values.mariadbReplicationFull.replication.syncBinlog }}
+    probesEnabled: {{ .Values.mariadbReplicationFull.replication.probesEnabled }}
+
+  service:
+    type: {{ .Values.mariadbReplicationFull.service.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationFull.service.annotations.metallbLoadBalancerIP }}
+  connection:
+    secretName: {{ .Values.mariadbReplicationFull.connection.secretName }}
+    secretTemplate:
+      key: {{ .Values.mariadbReplicationFull.connection.secretTemplate.key }}
+
+  primaryService:
+    type: {{ .Values.mariadbReplicationFull.primaryService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationFull.primaryService.annotations.metallbLoadBalancerIP }}
+  primaryConnection:
+    secretName: {{ .Values.mariadbReplicationFull.primaryConnection.secretName }}
+    secretTemplate:
+      key: {{ .Values.mariadbReplicationFull.primaryConnection.secretTemplate.key }}
+
+  secondaryService:
+    type: {{ .Values.mariadbReplicationFull.secondaryService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationFull.secondaryService.annotations.metallbLoadBalancerIP }}
+  secondaryConnection:
+    secretName: {{ .Values.mariadbReplicationFull.secondaryConnection.secretName }}
+    secretTemplate:
+      key: {{ .Values.mariadbReplicationFull.secondaryConnection.secretTemplate.key }}
+
+  affinity:
+    antiAffinityEnabled: {{ .Values.mariadbReplicationFull.affinity.antiAffinityEnabled }}
+
+  tolerations:
+    - key: {{ .Values.mariadbReplicationFull.tolerations.key | quote }}
+      operator: {{ .Values.mariadbReplicationFull.tolerations.operator | quote }}
+      effect: {{ .Values.mariadbReplicationFull.tolerations.effect | quote }}
+
+  podDisruptionBudget:
+    maxUnavailable: {{ .Values.mariadbReplicationFull.podDisruptionBudget.maxUnavailable }}
+
+  updateStrategy:
+    type: {{ .Values.mariadbReplicationFull.updateStrategy.type }}
+
+  myCnf: |
+{{ .Values.mariadbReplicationFull.myCnf | indent 4 }}
+
+  timeZone: {{ .Values.mariadbReplicationFull.timeZone | quote }}
+
+  resources:
+    requests:
+      cpu: {{ .Values.mariadbReplicationFull.resources.requests.cpu }}
+      memory: {{ .Values.mariadbReplicationFull.resources.requests.memory }}
+    limits:
+      memory: {{ .Values.mariadbReplicationFull.resources.limits.memory }}
+
+  livenessProbe:
+    initialDelaySeconds: {{ .Values.mariadbReplicationFull.livenessProbe.initialDelaySeconds }}
+    periodSeconds: {{ .Values.mariadbReplicationFull.livenessProbe.periodSeconds }}
+    timeoutSeconds: {{ .Values.mariadbReplicationFull.livenessProbe.timeoutSeconds }}
+
+  readinessProbe:
+    initialDelaySeconds: {{ .Values.mariadbReplicationFull.readinessProbe.initialDelaySeconds }}
+    periodSeconds: {{ .Values.mariadbReplicationFull.readinessProbe.periodSeconds }}
+    timeoutSeconds: {{ .Values.mariadbReplicationFull.readinessProbe.timeoutSeconds }}
+
+  metrics:
+    enabled: {{ .Values.mariadbReplicationFull.metrics.enabled }}
+
+  tls:
+    enabled: {{ .Values.mariadbReplicationFull.tls.enabled }}
+    required: {{ .Values.mariadbReplicationFull.tls.required }}
+
+  suspend: {{ .Values.mariadbReplicationFull.suspend }}

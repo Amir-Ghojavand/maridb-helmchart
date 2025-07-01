@@ -1,0 +1,47 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ .Values.mariadbReplicationTls.name }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbReplicationTls.rootPasswordSecretKeyRef.name }}
+    key: {{ .Values.mariadbReplicationTls.rootPasswordSecretKeyRef.key }}
+  
+  username: {{ .Values.mariadbReplicationTls.username }}
+  passwordSecretKeyRef:
+    name: {{ .Values.mariadbReplicationTls.passwordSecretKeyRef.name }}
+    key: {{ .Values.mariadbReplicationTls.passwordSecretKeyRef.key }}
+  database: {{ .Values.mariadbReplicationTls.database }}
+
+  storage:
+    size: {{ .Values.mariadbReplicationTls.storage.size }}
+
+  replicas: {{ .Values.mariadbReplicationTls.replicas }}
+
+  replication:
+    enabled: {{ .Values.mariadbReplicationTls.replication.enabled }}
+
+  service:
+    type: {{ .Values.mariadbReplicationTls.service.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationTls.service.annotations.metallbLoadBalancerIP }}
+
+  primaryService:
+    type: {{ .Values.mariadbReplicationTls.primaryService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationTls.primaryService.annotations.metallbLoadBalancerIP }}
+
+  secondaryService:
+    type: {{ .Values.mariadbReplicationTls.secondaryService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationTls.secondaryService.annotations.metallbLoadBalancerIP }}
+  
+  metrics:
+    enabled: {{ .Values.mariadbReplicationTls.metrics.enabled }}
+
+  tls:
+    enabled: {{ .Values.mariadbReplicationTls.tls.enabled }}
+    required: {{ .Values.mariadbReplicationTls.tls.required }}

@@ -1,0 +1,40 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MaxScale
+metadata:
+  name: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.name }}
+spec:
+  replicas: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.replicas }}
+  mariaDbRef:
+    name: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.mariaDbRef.name }}
+  admin:
+    port: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.admin.port }}
+    guiEnabled: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.admin.guiEnabled }}
+  auth:
+    generate: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.auth.generate }}
+  kubernetesService:
+    type: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.kubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.kubernetesService.annotations.metallbLoadBalancerIP }}
+  guiKubernetesService:
+    type: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.guiKubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.guiKubernetesService.annotations.metallbLoadBalancerIP }}
+  connection:
+    secretName: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.connection.secretName }}
+    port: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.connection.port }}
+  metrics:
+    enabled: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.metrics.enabled }}
+  tls:
+    enabled: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.tls.enabled }}
+    adminCASecretRef:
+      name: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.tls.adminCASecretRef.name }}
+    adminCertIssuerRef:
+      name: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.tls.adminCertIssuerRef.name }}
+      kind: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.tls.adminCertIssuerRef.kind }}
+    listenerCASecretRef:
+      name: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.tls.listenerCASecretRef.name }}
+    listenerCertIssuerRef:
+      name: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.tls.listenerCertIssuerRef.name }}
+      kind: {{ .Values.maxscaleGaleraTlsCertManagerIntermediateCa.tls.listenerCertIssuerRef.kind }}

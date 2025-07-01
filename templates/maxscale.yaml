@@ -1,0 +1,19 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MaxScale
+metadata:
+  name: {{ .Values.maxscale.name }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.maxscale.mariaDbRef.name }}
+  kubernetesService:
+    type: {{ .Values.maxscale.kubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscale.kubernetesService.annotations.metallbLoadBalancerIP }}
+  guiKubernetesService:
+    type: {{ .Values.maxscale.guiKubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscale.guiKubernetesService.annotations.metallbLoadBalancerIP }}
+  metrics:
+    enabled: {{ .Values.maxscale.metrics.enabled }}

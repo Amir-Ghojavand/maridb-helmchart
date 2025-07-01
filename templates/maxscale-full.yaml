@@ -1,0 +1,62 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MaxScale
+metadata:
+  name: {{ .Values.maxscaleFull.name }}
+spec:
+  image: {{ .Values.maxscaleFull.image }}
+  imagePullPolicy: {{ .Values.maxscaleFull.imagePullPolicy }}
+  imagePullSecrets:
+{{ toYaml .Values.maxscaleFull.imagePullSecrets | indent 4 }}
+  inheritMetadata:
+{{ toYaml .Values.maxscaleFull.inheritMetadata | indent 4 }}
+  podMetadata:
+{{ toYaml .Values.maxscaleFull.podMetadata | indent 4 }}
+  replicas: {{ .Values.maxscaleFull.replicas }}
+  servers:
+{{ toYaml .Values.maxscaleFull.servers | indent 4 }}
+  services:
+{{ toYaml .Values.maxscaleFull.services | indent 4 }}
+  monitor:
+{{ toYaml .Values.maxscaleFull.monitor | indent 4 }}
+  admin:
+{{ toYaml .Values.maxscaleFull.admin | indent 4 }}
+  config:
+{{ toYaml .Values.maxscaleFull.config | indent 4 }}
+  auth:
+{{ toYaml .Values.maxscaleFull.auth | indent 4 }}
+  podSecurityContext:
+{{ toYaml .Values.maxscaleFull.podSecurityContext | indent 4 }}
+  securityContext:
+{{ toYaml .Values.maxscaleFull.securityContext | indent 4 }}
+  updateStrategy:
+{{ toYaml .Values.maxscaleFull.updateStrategy | indent 4 }}
+  kubernetesService:
+    type: {{ .Values.maxscaleFull.kubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleFull.kubernetesService.annotations.metallbLoadBalancerIP }}
+  guiKubernetesService:
+    type: {{ .Values.maxscaleFull.guiKubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleFull.guiKubernetesService.annotations.metallbLoadBalancerIP }}
+  connection:
+    secretName: {{ .Values.maxscaleFull.connection.secretName }}
+    port: {{ .Values.maxscaleFull.connection.port }}
+  metrics:
+    enabled: {{ .Values.maxscaleFull.metrics.enabled }}
+  suspend: {{ .Values.maxscaleFull.suspend }}
+  resources:
+{{ toYaml .Values.maxscaleFull.resources | indent 4 }}
+  livenessProbe:
+{{ toYaml .Values.maxscaleFull.livenessProbe | indent 4 }}
+  readinessProbe:
+{{ toYaml .Values.maxscaleFull.readinessProbe | indent 4 }}
+  startupProbe:
+{{ toYaml .Values.maxscaleFull.startupProbe | indent 4 }}
+  affinity:
+{{ toYaml .Values.maxscaleFull.affinity | indent 4 }}
+  tolerations:
+{{ toYaml .Values.maxscaleFull.tolerations | indent 4 }}
+  podDisruptionBudget:
+{{ toYaml .Values.maxscaleFull.podDisruptionBudget | indent 4 }}

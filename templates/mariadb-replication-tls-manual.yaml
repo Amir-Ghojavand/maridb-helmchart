@@ -1,0 +1,55 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ .Values.mariadbReplicationTlsManual.name }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbReplicationTlsManual.rootPasswordSecretKeyRef.name }}
+    key: {{ .Values.mariadbReplicationTlsManual.rootPasswordSecretKeyRef.key }}
+  
+  username: {{ .Values.mariadbReplicationTlsManual.username }}
+  passwordSecretKeyRef:
+    name: {{ .Values.mariadbReplicationTlsManual.passwordSecretKeyRef.name }}
+    key: {{ .Values.mariadbReplicationTlsManual.passwordSecretKeyRef.key }}
+  database: {{ .Values.mariadbReplicationTlsManual.database }}
+
+  storage:
+    size: {{ .Values.mariadbReplicationTlsManual.storage.size }}
+
+  replicas: {{ .Values.mariadbReplicationTlsManual.replicas }}
+
+  replication:
+    enabled: {{ .Values.mariadbReplicationTlsManual.replication.enabled }}
+
+  service:
+    type: {{ .Values.mariadbReplicationTlsManual.service.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationTlsManual.service.annotations.metallbLoadBalancerIP }}
+
+  primaryService:
+    type: {{ .Values.mariadbReplicationTlsManual.primaryService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationTlsManual.primaryService.annotations.metallbLoadBalancerIP }}
+
+  secondaryService:
+    type: {{ .Values.mariadbReplicationTlsManual.secondaryService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbReplicationTlsManual.secondaryService.annotations.metallbLoadBalancerIP }}
+  
+  metrics:
+    enabled: {{ .Values.mariadbReplicationTlsManual.metrics.enabled }}
+
+  tls:
+    enabled: {{ .Values.mariadbReplicationTlsManual.tls.enabled }}
+    required: {{ .Values.mariadbReplicationTlsManual.tls.required }}
+    serverCASecretRef:
+      name: {{ .Values.mariadbReplicationTlsManual.tls.serverCASecretRef.name }}
+    serverCertSecretRef:
+      name: {{ .Values.mariadbReplicationTlsManual.tls.serverCertSecretRef.name }}
+    clientCASecretRef:
+      name: {{ .Values.mariadbReplicationTlsManual.tls.clientCASecretRef.name }}
+    clientCertSecretRef:
+      name: {{ .Values.mariadbReplicationTlsManual.tls.clientCertSecretRef.name }}

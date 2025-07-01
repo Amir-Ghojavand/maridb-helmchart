@@ -1,0 +1,10 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ .Values.mariadbMyCnf.name }}
+spec:
+  storage:
+    size: {{ .Values.mariadbMyCnf.storage.size }}
+
+  myCnf: |
+{{ .Values.mariadbMyCnf.myCnf | indent 4 }}

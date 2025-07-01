@@ -1,0 +1,44 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-galera-affinity
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraAffinity.rootPasswordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraAffinity.rootPasswordSecretKeyRef.key | quote }}
+  storage:
+    size: {{ .Values.mariadbGaleraAffinity.storage.size | default "1Gi" }}
+  replicas: {{ .Values.mariadbGaleraAffinity.replicas | default 3 }}
+  galera:
+    enabled: {{ .Values.mariadbGaleraAffinity.galera.enabled | default true }}
+  service:
+    type: {{ .Values.mariadbGaleraAffinity.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraAffinity.service.metadata.annotations.metallb | quote }}
+  primaryService:
+    type: {{ .Values.mariadbGaleraAffinity.primaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraAffinity.primaryService.metadata.annotations.metallb | quote }}
+  secondaryService:
+    type: {{ .Values.mariadbGaleraAffinity.secondaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraAffinity.secondaryService.metadata.annotations.metallb | quote }}
+  metrics:
+    enabled: {{ .Values.mariadbGaleraAffinity.metrics.enabled | default true }}
+  affinity:
+    antiAffinityEnabled: {{ .Values.mariadbGaleraAffinity.affinity.antiAffinityEnabled | default true }}
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: {{ .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions[0].key | quote }}
+            operator: {{ .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions[0].operator | quote }}
+          - key: {{ .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions[1].key | quote }}
+            operator: {{ .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions[1].operator | quote }}
+            values:
+              - {{ .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions[1].values[0] | quote }}

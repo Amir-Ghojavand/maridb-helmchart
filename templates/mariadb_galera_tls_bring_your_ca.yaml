@@ -1,0 +1,44 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-galera-tls-bring-your-ca
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraTlsBringYourCa.rootPasswordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraTlsBringYourCa.rootPasswordSecretKeyRef.key | quote }}
+  username: {{ .Values.mariadbGaleraTlsBringYourCa.username | quote }}
+  passwordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraTlsBringYourCa.passwordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraTlsBringYourCa.passwordSecretKeyRef.key | quote }}
+  database: {{ .Values.mariadbGaleraTlsBringYourCa.database | quote }}
+  storage:
+    size: {{ .Values.mariadbGaleraTlsBringYourCa.storage.size | default "1Gi" }}
+  replicas: {{ .Values.mariadbGaleraTlsBringYourCa.replicas | default 3 }}
+  galera:
+    enabled: {{ .Values.mariadbGaleraTlsBringYourCa.galera.enabled | default true }}
+  service:
+    type: {{ .Values.mariadbGaleraTlsBringYourCa.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraTlsBringYourCa.service.metadata.annotations.metallb | quote }}
+  primaryService:
+    type: {{ .Values.mariadbGaleraTlsBringYourCa.primaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraTlsBringYourCa.primaryService.metadata.annotations.metallb | quote }}
+  secondaryService:
+    type: {{ .Values.mariadbGaleraTlsBringYourCa.secondaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraTlsBringYourCa.secondaryService.metadata.annotations.metallb | quote }}
+  metrics:
+    enabled: {{ .Values.mariadbGaleraTlsBringYourCa.metrics.enabled | default true }}
+  tls:
+    enabled: {{ .Values.mariadbGaleraTlsBringYourCa.tls.enabled | default true }}
+    required: {{ .Values.mariadbGaleraTlsBringYourCa.tls.required | default true }}
+    serverCASecretRef:
+      name: {{ .Values.mariadbGaleraTlsBringYourCa.tls.serverCASecretRef.name | quote }}
+    clientCASecretRef:
+      name: {{ .Values.mariadbGaleraTlsBringYourCa.tls.clientCASecretRef.name | quote }}

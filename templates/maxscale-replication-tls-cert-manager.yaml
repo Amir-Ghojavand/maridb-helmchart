@@ -1,0 +1,36 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MaxScale
+metadata:
+  name: {{ .Values.maxscaleReplicationTlsCertManager.name }}
+spec:
+  replicas: {{ .Values.maxscaleReplicationTlsCertManager.replicas }}
+  mariaDbRef:
+    name: {{ .Values.maxscaleReplicationTlsCertManager.mariaDbRef.name }}
+  admin:
+    port: {{ .Values.maxscaleReplicationTlsCertManager.admin.port }}
+    guiEnabled: {{ .Values.maxscaleReplicationTlsCertManager.admin.guiEnabled }}
+  auth:
+    generate: {{ .Values.maxscaleReplicationTlsCertManager.auth.generate }}
+  kubernetesService:
+    type: {{ .Values.maxscaleReplicationTlsCertManager.kubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleReplicationTlsCertManager.kubernetesService.annotations.metallbLoadBalancerIP }}
+  guiKubernetesService:
+    type: {{ .Values.maxscaleReplicationTlsCertManager.guiKubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleReplicationTlsCertManager.guiKubernetesService.annotations.metallbLoadBalancerIP }}
+  connection:
+    secretName: {{ .Values.maxscaleReplicationTlsCertManager.connection.secretName }}
+    port: {{ .Values.maxscaleReplicationTlsCertManager.connection.port }}
+  metrics:
+    enabled: {{ .Values.maxscaleReplicationTlsCertManager.metrics.enabled }}
+  tls:
+    enabled: {{ .Values.maxscaleReplicationTlsCertManager.tls.enabled }}
+    adminCertIssuerRef:
+      name: {{ .Values.maxscaleReplicationTlsCertManager.tls.adminCertIssuerRef.name }}
+      kind: {{ .Values.maxscaleReplicationTlsCertManager.tls.adminCertIssuerRef.kind }}
+    listenerCertIssuerRef:
+      name: {{ .Values.maxscaleReplicationTlsCertManager.tls.listenerCertIssuerRef.name }}
+      kind: {{ .Values.maxscaleReplicationTlsCertManager.tls.listenerCertIssuerRef.kind }}

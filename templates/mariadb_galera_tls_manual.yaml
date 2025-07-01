@@ -1,0 +1,48 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-galera-tls-manual
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraTlsManual.rootPasswordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraTlsManual.rootPasswordSecretKeyRef.key | quote }}
+  username: {{ .Values.mariadbGaleraTlsManual.username | quote }}
+  passwordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraTlsManual.passwordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraTlsManual.passwordSecretKeyRef.key | quote }}
+  database: {{ .Values.mariadbGaleraTlsManual.database | quote }}
+  storage:
+    size: {{ .Values.mariadbGaleraTlsManual.storage.size | default "1Gi" }}
+  replicas: {{ .Values.mariadbGaleraTlsManual.replicas | default 3 }}
+  galera:
+    enabled: {{ .Values.mariadbGaleraTlsManual.galera.enabled | default true }}
+  service:
+    type: {{ .Values.mariadbGaleraTlsManual.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraTlsManual.service.metadata.annotations.metallb | quote }}
+  primaryService:
+    type: {{ .Values.mariadbGaleraTlsManual.primaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraTlsManual.primaryService.metadata.annotations.metallb | quote }}
+  secondaryService:
+    type: {{ .Values.mariadbGaleraTlsManual.secondaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraTlsManual.secondaryService.metadata.annotations.metallb | quote }}
+  metrics:
+    enabled: {{ .Values.mariadbGaleraTlsManual.metrics.enabled | default true }}
+  tls:
+    enabled: {{ .Values.mariadbGaleraTlsManual.tls.enabled | default true }}
+    required: {{ .Values.mariadbGaleraTlsManual.tls.required | default true }}
+    serverCASecretRef:
+      name: {{ .Values.mariadbGaleraTlsManual.tls.serverCASecretRef.name | quote }}
+    serverCertSecretRef:
+      name: {{ .Values.mariadbGaleraTlsManual.tls.serverCertSecretRef.name | quote }}
+    clientCASecretRef:
+      name: {{ .Values.mariadbGaleraTlsManual.tls.clientCASecretRef.name | quote }}
+    clientCertSecretRef:
+      name: {{ .Values.mariadbGaleraTlsManual.tls.clientCertSecretRef.name | quote }}

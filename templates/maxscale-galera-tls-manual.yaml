@@ -1,0 +1,44 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MaxScale
+metadata:
+  name: {{ .Values.maxscaleGaleraTlsManual.name }}
+spec:
+  replicas: {{ .Values.maxscaleGaleraTlsManual.replicas }}
+  mariaDbRef:
+    name: {{ .Values.maxscaleGaleraTlsManual.mariaDbRef.name }}
+  admin:
+    port: {{ .Values.maxscaleGaleraTlsManual.admin.port }}
+    guiEnabled: {{ .Values.maxscaleGaleraTlsManual.admin.guiEnabled }}
+  auth:
+    generate: {{ .Values.maxscaleGaleraTlsManual.auth.generate }}
+  kubernetesService:
+    type: {{ .Values.maxscaleGaleraTlsManual.kubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleGaleraTlsManual.kubernetesService.annotations.metallbLoadBalancerIP }}
+  guiKubernetesService:
+    type: {{ .Values.maxscaleGaleraTlsManual.guiKubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleGaleraTlsManual.guiKubernetesService.annotations.metallbLoadBalancerIP }}
+  connection:
+    secretName: {{ .Values.maxscaleGaleraTlsManual.connection.secretName }}
+    port: {{ .Values.maxscaleGaleraTlsManual.connection.port }}
+  metrics:
+    enabled: {{ .Values.maxscaleGaleraTlsManual.metrics.enabled }}
+  tls:
+    enabled: {{ .Values.maxscaleGaleraTlsManual.tls.enabled }}
+    adminCASecretRef:
+      name: {{ .Values.maxscaleGaleraTlsManual.tls.adminCASecretRef.name }}
+    adminCertSecretRef:
+      name: {{ .Values.maxscaleGaleraTlsManual.tls.adminCertSecretRef.name }}
+    listenerCASecretRef:
+      name: {{ .Values.maxscaleGaleraTlsManual.tls.listenerCASecretRef.name }}
+    listenerCertSecretRef:
+      name: {{ .Values.maxscaleGaleraTlsManual.tls.listenerCertSecretRef.name }}
+    serverCASecretRef:
+      name: {{ .Values.maxscaleGaleraTlsManual.tls.serverCASecretRef.name }}
+    serverCertSecretRef:
+      name: {{ .Values.maxscaleGaleraTlsManual.tls.serverCertSecretRef.name }}
+    verifyPeerCertificate: {{ .Values.maxscaleGaleraTlsManual.tls.verifyPeerCertificate }}
+    verifyPeerHost: {{ .Values.maxscaleGaleraTlsManual.tls.verifyPeerHost }}

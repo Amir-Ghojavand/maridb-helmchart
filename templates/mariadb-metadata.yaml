@@ -1,0 +1,19 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-metadata
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  inheritMetadata:
+    labels:
+      database.myorg.io: {{ .Values.mariadbMetadata.inheritMetadata.labels.databaseMyorgIo | quote }}
+    annotations:
+      database.myorg.io: {{ .Values.mariadbMetadata.inheritMetadata.annotations.databaseMyorgIo | quote }}
+  podMetadata:
+    labels:
+      sidecar.istio.io/inject: {{ .Values.mariadbMetadata.podMetadata.labels.sidecarIstioIoInject | quote }}
+    annotations:
+      sidecar.istio.io/inject: {{ .Values.mariadbMetadata.podMetadata.annotations.sidecarIstioIoInject | quote }}
+  storage:
+    size: {{ .Values.mariadbMetadata.storage.size | default "1Gi" }}

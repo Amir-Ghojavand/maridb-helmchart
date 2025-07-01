@@ -1,0 +1,45 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-from-s3
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  storage:
+    size: {{ .Values.mariadbFromS3.storage.size | default "1Gi" }}
+  bootstrapFrom:
+    s3:
+      bucket: {{ .Values.mariadbFromS3.bootstrapFrom.s3.bucket | quote }}
+      prefix: {{ .Values.mariadbFromS3.bootstrapFrom.s3.prefix | quote }}
+      endpoint: {{ .Values.mariadbFromS3.bootstrapFrom.s3.endpoint | quote }}
+      accessKeyIdSecretKeyRef:
+        name: {{ .Values.mariadbFromS3.bootstrapFrom.s3.accessKeyIdSecretKeyRef.name | quote }}
+        key: {{ .Values.mariadbFromS3.bootstrapFrom.s3.accessKeyIdSecretKeyRef.key | quote }}
+      secretAccessKeySecretKeyRef:
+        name: {{ .Values.mariadbFromS3.bootstrapFrom.s3.secretAccessKeySecretKeyRef.name | quote }}
+        key: {{ .Values.mariadbFromS3.bootstrapFrom.s3.secretAccessKeySecretKeyRef.key | quote }}
+      tls:
+        enabled: {{ .Values.mariadbFromS3.bootstrapFrom.s3.tls.enabled | default true }}
+        caSecretKeyRef:
+          name: {{ .Values.mariadbFromS3.bootstrapFrom.s3.tls.caSecretKeyRef.name | quote }}
+          key: {{ .Values.mariadbFromS3.bootstrapFrom.s3.tls.caSecretKeyRef.key | quote }}
+    targetRecoveryTime: {{ .Values.mariadbFromS3.bootstrapFrom.targetRecoveryTime | quote }}
+    stagingStorage:
+      persistentVolumeClaim:
+        resources:
+          requests:
+            storage: {{ .Values.mariadbFromS3.bootstrapFrom.stagingStorage.persistentVolumeClaim.resources.requests.storage | default "1Gi" }}
+        accessModes:
+          - {{ .Values.mariadbFromS3.bootstrapFrom.stagingStorage.persistentVolumeClaim.accessModes | default "ReadWriteOnce" }}
+    restoreJob:
+      metadata:
+        labels:
+          sidecar.istio.io/inject: {{ .Values.mariadbFromS3.bootstrapFrom.restoreJob.metadata.labels.sidecarIstioIoInject | quote }}
+      args:
+        - {{ .Values.mariadbFromS3.bootstrapFrom.restoreJob.args.verbose | quote }}
+      resources:
+        requests:
+          cpu: {{ .Values.mariadbFromS3.bootstrapFrom.restoreJob.resources.requests.cpu | default "100m" }}
+          memory: {{ .Values.mariadbFromS3.bootstrapFrom.restoreJob.resources.requests.memory | default "128Mi" }}
+        limits:
+          memory: {{ .Values.mariadbFromS3.bootstrapFrom.restoreJob.resources.limits.memory | default "1Gi" }}

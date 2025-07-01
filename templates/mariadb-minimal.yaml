@@ -1,12 +1,8 @@
 apiVersion: k8s.mariadb.com/v1alpha1
 kind: MariaDB
 metadata:
-  name: {{ include "mariadb.fullname" . }}-minimal
-  labels:
-    {{- include "mariadb.labels" . | nindent 4 }}
+  name: {{ .Values.mariadbMinimal.name }}
 spec:
-  rootPasswordSecretKeyRef:
-    name: {{ .Values.mariadbMinimal.rootPasswordSecretKeyRef.name | quote }}
-    key: {{ .Values.mariadbMinimal.rootPasswordSecretKeyRef.key | quote }}
+  rootEmptyPassword: {{ .Values.mariadbMinimal.rootEmptyPassword }}
   storage:
-    size: {{ .Values.mariadbMinimal.storage.size | default "1Gi" }}
+    ephemeral: {{ .Values.mariadbMinimal.storage.ephemeral }}

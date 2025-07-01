@@ -1,0 +1,54 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-galera-maxscale
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraMaxscale.rootPasswordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraMaxscale.rootPasswordSecretKeyRef.key | quote }}
+  username: {{ .Values.mariadbGaleraMaxscale.username | quote }}
+  passwordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraMaxscale.passwordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraMaxscale.passwordSecretKeyRef.key | quote }}
+  database: {{ .Values.mariadbGaleraMaxscale.database | quote }}
+  storage:
+    size: {{ .Values.mariadbGaleraMaxscale.storage.size | default "1Gi" }}
+  replicas: {{ .Values.mariadbGaleraMaxscale.replicas | default 3 }}
+  maxScale:
+    enabled: {{ .Values.mariadbGaleraMaxscale.maxScale.enabled | default true }}
+    kubernetesService:
+      type: {{ .Values.mariadbGaleraMaxscale.maxScale.kubernetesService.type | default "LoadBalancer" }}
+      metadata:
+        annotations:
+          metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraMaxscale.maxScale.kubernetesService.metadata.annotations.metallb | quote }}
+    guiKubernetesService:
+      type: {{ .Values.mariadbGaleraMaxscale.maxScale.guiKubernetesService.type | default "LoadBalancer" }}
+      metadata:
+        annotations:
+          metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraMaxscale.maxScale.guiKubernetesService.metadata.annotations.metallb | quote }}
+    connection:
+      secretName: {{ .Values.mariadbGaleraMaxscale.maxScale.connection.secretName | quote }}
+      port: {{ .Values.mariadbGaleraMaxscale.maxScale.connection.port | default 3306 }}
+    metrics:
+      enabled: {{ .Values.mariadbGaleraMaxscale.maxScale.metrics.enabled | default true }}
+  galera:
+    enabled: {{ .Values.mariadbGaleraMaxscale.galera.enabled | default true }}
+  service:
+    type: {{ .Values.mariadbGaleraMaxscale.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraMaxscale.service.metadata.annotations.metallb | quote }}
+  primaryService:
+    type: {{ .Values.mariadbGaleraMaxscale.primaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraMaxscale.primaryService.metadata.annotations.metallb | quote }}
+  secondaryService:
+    type: {{ .Values.mariadbGaleraMaxscale.secondaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraMaxscale.secondaryService.metadata.annotations.metallb | quote }}
+  metrics:
+    enabled: {{ .Values.mariadbGaleraMaxscale.metrics.enabled | default true }}

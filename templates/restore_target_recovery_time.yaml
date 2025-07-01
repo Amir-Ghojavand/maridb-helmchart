@@ -1,0 +1,13 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Restore
+metadata:
+  name: {{ include "mariadb.fullname" . }}-restore-target-recovery-time
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.restoreTargetRecoveryTime.mariaDbRefName | default (include "mariadb.fullname" .) }}
+  backupRef:
+    name: {{ .Values.restoreTargetRecoveryTime.backupRef | default backup }}
+  targetRecoveryTime: {{ .Values.restoreTargetRecoveryTime.targetRecoveryTime | quote }}
+

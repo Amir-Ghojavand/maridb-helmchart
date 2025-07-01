@@ -13,4 +13,4 @@ data:
     sql_mode = {{ .Values.mariadb.sqlMode }}
     character-set-server = {{ .Values.mariadb.characterSetServer }}
     collation-server = {{ .Values.mariadb.collationServer }}
-    # Additional configuration options can be added here
+# Additional configuration options can be added here

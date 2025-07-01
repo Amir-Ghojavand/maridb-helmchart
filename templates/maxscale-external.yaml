@@ -1,0 +1,39 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MaxScale
+metadata:
+  name: {{ .Values.maxscaleExternal.name }}
+spec:
+  replicas: {{ .Values.maxscaleExternal.replicas }}
+
+  servers:
+{{ toYaml .Values.maxscaleExternal.servers | indent 4 }}
+
+  services:
+{{ toYaml .Values.maxscaleExternal.services | indent 4 }}
+
+  monitor:
+{{ toYaml .Values.maxscaleExternal.monitor | indent 4 }}
+
+  admin:
+    port: {{ .Values.maxscaleExternal.admin.port }}
+
+  config:
+{{ toYaml .Values.maxscaleExternal.config | indent 4 }}
+
+  auth:
+{{ toYaml .Values.maxscaleExternal.auth | indent 4 }}
+
+  kubernetesService:
+    type: {{ .Values.maxscaleExternal.kubernetesService.type }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.maxscaleExternal.kubernetesService.annotations.metallbLoadBalancerIP }}
+
+  connection:
+    secretName: {{ .Values.maxscaleExternal.connection.secretName }}
+    port: {{ .Values.maxscaleExternal.connection.port }}
+
+  metrics:
+    enabled: {{ .Values.maxscaleExternal.metrics.enabled }}
+
+  requeueInterval: {{ .Values.maxscaleExternal.requeueInterval }}

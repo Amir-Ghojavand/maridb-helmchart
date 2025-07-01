@@ -1,0 +1,46 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ include "mariadb.fullname" . }}-galera-tls-cert-manager
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+spec:
+  rootPasswordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraTlsCertManager.rootPasswordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraTlsCertManager.rootPasswordSecretKeyRef.key | quote }}
+  username: {{ .Values.mariadbGaleraTlsCertManager.username | quote }}
+  passwordSecretKeyRef:
+    name: {{ .Values.mariadbGaleraTlsCertManager.passwordSecretKeyRef.name | quote }}
+    key: {{ .Values.mariadbGaleraTlsCertManager.passwordSecretKeyRef.key | quote }}
+  database: {{ .Values.mariadbGaleraTlsCertManager.database | quote }}
+  storage:
+    size: {{ .Values.mariadbGaleraTlsCertManager.storage.size | default "1Gi" }}
+  replicas: {{ .Values.mariadbGaleraTlsCertManager.replicas | default 3 }}
+  galera:
+    enabled: {{ .Values.mariadbGaleraTlsCertManager.galera.enabled | default true }}
+  service:
+    type: {{ .Values.mariadbGaleraTlsCertManager.service.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraTlsCertManager.service.metadata.annotations.metallb | quote }}
+  primaryService:
+    type: {{ .Values.mariadbGaleraTlsCertManager.primaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraTlsCertManager.primaryService.metadata.annotations.metallb | quote }}
+  secondaryService:
+    type: {{ .Values.mariadbGaleraTlsCertManager.secondaryService.type | default "LoadBalancer" }}
+    metadata:
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadbGaleraTlsCertManager.secondaryService.metadata.annotations.metallb | quote }}
+  metrics:
+    enabled: {{ .Values.mariadbGaleraTlsCertManager.metrics.enabled | default true }}
+  tls:
+    enabled: {{ .Values.mariadbGaleraTlsCertManager.tls.enabled | default true }}
+    required: {{ .Values.mariadbGaleraTlsCertManager.tls.required | default true }}
+    serverCertIssuerRef:
+      name: {{ .Values.mariadbGaleraTlsCertManager.tls.serverCertIssuerRef.name | quote }}
+      kind: {{ .Values.mariadbGaleraTlsCertManager.tls.serverCertIssuerRef.kind | quote }}
+    clientCertIssuerRef:
+      name: {{ .Values.mariadbGaleraTlsCertManager.tls.clientCertIssuerRef.name | quote }}
+      kind: {{ .Values.mariadbGaleraTlsCertManager.tls.clientCertIssuerRef.kind | quote }}

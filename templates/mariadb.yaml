@@ -1,34 +1,39 @@
 apiVersion: k8s.mariadb.com/v1alpha1
 kind: MariaDB
 metadata:
-  name: {{ include "mariadb.fullname" . }}
-  labels:
-    {{- include "mariadb.labels" . | nindent 4 }}
+  name: {{ .Values.mariadb.name }}
 spec:
   rootPasswordSecretKeyRef:
-    name: {{ .Values.mariadb.rootPasswordSecretKeyRef.name | quote }}
-    key: {{ .Values.mariadb.rootPasswordSecretKeyRef.key | quote }}
-  username: {{ .Values.mariadb.username | quote }}
+    name: {{ .Values.mariadb.rootPasswordSecretKeyRef.name }}
+    key: {{ .Values.mariadb.rootPasswordSecretKeyRef.key }}
+
+  username: {{ .Values.mariadb.username }}
   passwordSecretKeyRef:
-    name: {{ .Values.mariadb.passwordSecretKeyRef.name | quote }}
-    key: {{ .Values.mariadb.passwordSecretKeyRef.key | quote }}
-    generate: {{ .Values.mariadb.passwordSecretKeyRef.generate | default false }}
-  database: {{ .Values.mariadb.database | quote }}
-  port: {{ .Values.mariadb.port | default 3306 }}
+    name: {{ .Values.mariadb.passwordSecretKeyRef.name }}
+    key: {{ .Values.mariadb.passwordSecretKeyRef.key }}
+    generate: {{ .Values.mariadb.passwordSecretKeyRef.generate }}
+  database: {{ .Values.mariadb.database }}
+
+  port: {{ .Values.mariadb.port }}
+
   storage:
-    size: {{ .Values.mariadb.storage.size | default "1Gi" }}
+    size: {{ .Values.mariadb.storage.size }}
+
   service:
-    type: {{ .Values.mariadb.service.type | default "LoadBalancer" }}
+    type: {{ .Values.mariadb.service.type }}
     metadata:
       annotations:
-        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadb.service.metadata.annotations.metallb | quote }}
+        metallb.universe.tf/loadBalancerIPs: {{ .Values.mariadb.service.annotations.metallbLoadBalancerIP }}
+
   myCnf: |
-    {{- .Values.mariadb.myCnf | nindent 4 }}
+{{ .Values.mariadb.myCnf | indent 4 }}
+
   resources:
     requests:
-      cpu: {{ .Values.mariadb.resources.requests.cpu | default "100m" }}
-      memory: {{ .Values.mariadb.resources.requests.memory | default "128Mi" }}
+      cpu: {{ .Values.mariadb.resources.requests.cpu }}
+      memory: {{ .Values.mariadb.resources.requests.memory }}
     limits:
-      memory: {{ .Values.mariadb.resources.limits.memory | default "1Gi" }}
+      memory: {{ .Values.mariadb.resources.limits.memory }}
+
   metrics:
-    enabled: {{ .Values.mariadb.metrics.enabled | default true }}
+    enabled: {{ .Values.mariadb.metrics.enabled }}

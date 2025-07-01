@@ -1,0 +1,38 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: User
+metadata:
+  name: {{ .Values.connectionTls.user.name | quote }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.connectionTls.user.mariaDbRefName | quote }}
+  require:
+    issuer: {{ .Values.connectionTls.user.require.issuer | quote }}
+    subject: {{ .Values.connectionTls.user.require.subject | quote }}
+  host: {{ .Values.connectionTls.user.host | quote }}
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Grant
+metadata:
+  name: {{ .Values.connectionTls.grant.name | quote }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.connectionTls.grant.mariaDbRefName | quote }}
+  privileges:
+    - {{ .Values.connectionTls.grant.privileges | quote }}
+  database: {{ .Values.connectionTls.grant.database | quote }}
+  table: {{ .Values.connectionTls.grant.table | quote }}
+  username: {{ .Values.connectionTls.grant.username | quote }}
+  host: {{ .Values.connectionTls.grant.host | quote }}
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Connection
+metadata:
+  name: {{ .Values.connectionTls.connection.name | quote }}
+spec:
+  mariaDbRef:
+    name: {{ .Values.connectionTls.connection.mariaDbRefName | quote }}
+  username: {{ .Values.connectionTls.connection.username | quote }}
+  tlsClientCertSecretRef:
+    name: {{ .Values.connectionTls.connection.tlsClientCertSecretRefName | quote }}
+  healthCheck:
+    interval: {{ .Values.connectionTls.connection.healthCheckInterval | quote }}

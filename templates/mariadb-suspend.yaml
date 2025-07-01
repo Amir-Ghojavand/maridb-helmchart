@@ -1,0 +1,9 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: {{ .Values.mariadbSuspend.name }}
+spec:
+  storage:
+    size: {{ .Values.mariadbSuspend.storage.size }}
+
+  suspend: {{ .Values.mariadbSuspend.suspend }}
