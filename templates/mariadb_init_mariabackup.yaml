@@ -6,7 +6,7 @@ metadata:
     {{- include "mariadb.labels" . | nindent 4 }}
 spec:
   initContainers:
-    - image: {{ .Values.mariadbInitMariabackup.initContainers[0].image | quote }}
+    - image: {{ index .Values.mariadbInitMariabackup.initContainers 0 "image" | quote }}
       args:
         - mariadb-backup
         - --copy-back
@@ -14,9 +14,9 @@ spec:
   volumes:
     - name: mariabackup
       persistentVolumeClaim:
-        claimName: {{ .Values.mariadbInitMariabackup.volumes[0].persistentVolumeClaim.claimName | default "mariabackup" | quote }}
+        claimName: {{ index .Values.mariadbInitMariabackup.volumes 0 "persistentVolumeClaim" "claimName" | default "mariabackup" | quote }}
   volumeMounts:
     - name: mariabackup
-      mountPath: {{ .Values.mariadbInitMariabackup.volumeMounts[0].mountPath | default "/var/mariadb/backup/" | quote }}
+      mountPath: {{ index .Values.mariadbInitMariabackup.volumeMounts 0 "mountPath" | default "/var/mariadb/backup/" | quote }}
   storage:
     size: {{ .Values.mariadbInitMariabackup.storage.size | default "1Gi" }}

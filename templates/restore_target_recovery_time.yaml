@@ -8,6 +8,6 @@ spec:
   mariaDbRef:
     name: {{ .Values.restoreTargetRecoveryTime.mariaDbRefName | default (include "mariadb.fullname" .) }}
   backupRef:
-    name: {{ .Values.restoreTargetRecoveryTime.backupRef | default backup }}
+    name: {{ .Values.restoreTargetRecoveryTime.backupRef | default "backup" }}
   targetRecoveryTime: {{ .Values.restoreTargetRecoveryTime.targetRecoveryTime | quote }}
 

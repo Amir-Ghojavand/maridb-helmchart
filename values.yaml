@@ -1,710 +1,2165 @@
-# Default configuration values for the MariaDB Helm chart
+annotations: ""  # string
 
-# MariaDB image settings
-image:
-  repository: mariadb
-  tag: latest
-  pullPolicy: IfNotPresent
-
-# MariaDB root password and user credentials
-auth:
-  rootPassword: your-root-password  # Root password for MariaDB root user
-  user: your-user                  # Application user to create
-  userPassword: your-user-password # Password for the application user
-  database: your-database          # Database to create
-
-# MariaDB configuration
-config:
-  my.cnf: |
-    [mysqld]
-    bind-address = 0.0.0.0
-    max_connections = 100
-
-# Service settings
-service:
-  enabled: true
-  type: ClusterIP  # Options: ClusterIP, NodePort, LoadBalancer
-  port: 3306
-  annotations: {}
-
-# Persistence settings
-persistence:
-  enabled: true
-  storageClass: "standard"  # Set to your storage class
-  accessModes:
-    - ReadWriteOnce
-  size: 8Gi  # Default size for the PVC
-
-# Resource requests and limits
-resources:
-  requests:
-    cpu: "250m"
-    memory: "256Mi"
-  limits:
-    cpu: "500m"
-    memory: "512Mi"
-
-# Number of replicas
-replicaCount: 1
-
-# Liveness and readiness probes
-livenessProbe:
-  enabled: true
-  initialDelaySeconds: 30
-  periodSeconds: 10
-
-readinessProbe:
-  enabled: true
-  initialDelaySeconds: 30
-  periodSeconds: 10
-
-# Affinity and tolerations
-affinity: {}
-tolerations: []
-nodeSelector: {}
-
-# Backup settings (for CronJob, not Operator CRD)
-backupCronJob:
-  enabled: false  # Set to true to enable backup CronJob
-  schedule: "0 2 * * *"  # Cron schedule for backups
-  retention: 7  # Number of days to retain backups
-
-# Prometheus ServiceMonitor settings
-serviceMonitor:
-  enabled: false  # Set to true to enable ServiceMonitor
-  interval: 30s
-  timeout: 10s
-
-# Ingress settings
-ingress:
-  enabled: false  # Set to true to enable Ingress
-  annotations: {}
-  hosts:
-    - host: chart-example.local
-      paths:
-        - /
-  tls: []  # TLS configuration for Ingress
-
-# Additional settings can be added below as needed.
-
-# MariaDB Operator CRD options for Database
-# These control the Database custom resource
-# See manifests/database.yaml for all options
-#
-database:
-  characterSet: utf8               # Character set for the database
-  collate: utf8_general_ci         # Collation for the database
-  cleanupPolicy: Delete            # Cleanup policy (Delete/Skip)
-  requeueInterval: 30s             # Requeue interval
-  retryInterval: 5s                # Retry interval
-
-# MariaDB Operator CRD options for User
-# These control the User custom resource
-# See manifests/user.yaml for all options
-#
-user:
-  maxUserConnections: 20           # Max connections for the user
-  host: "%"                        # Host for the user
-  cleanupPolicy: Delete            # Cleanup policy (Delete/Skip)
-  requeueInterval: 30s             # Requeue interval
-  retryInterval: 5s                # Retry interval
-
-# MariaDB Operator CRD options for Backup
-# These control the Backup custom resource
-# See manifests/backup.yaml for all options
-#
-backupCR:
-  enabled: false                   # Set to true to enable backup CR
-  annotations: {}
-  podLabels: {}
-  compression: gzip
-  storage:
-    size: 100Mi
-    accessMode: ReadWriteOnce
-  args:
-    - --single-transaction
-    - --all-databases
-    - --verbose
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 300m
-      memory: 512Mi
+# Backup Configuration
+backup:
   affinity:
-    antiAffinityEnabled: true
-
-# Restore CR options for MariaDB Operator
-restoreCR:
-  enabled: false                   # Set to true to enable Restore CR
-  backupRefName: ""                # Name of the Backup CR to restore from (defaults to <release>-mariadb-backup)
-  annotations: {}
-  podLabels: {}
+    antiAffinityEnabled: ""  # string
   args:
-    - --verbose
+    allDatabases: ""  # string
+    singleTransaction: ""  # string
+    verbose: ""  # string
+  compression: ""  # string
+  inheritMetadata:
+    annotations:
+      databaseMyorgIo: ""  # string
+  mariaDbRefName: ""  # string
+  name: ""  # string
+  podMetadata:
+    labels:
+      sidecarIstioIoInject: ""  # string
   resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
     limits:
-      cpu: 300m
-      memory: 512Mi
-  affinity:
-    antiAffinityEnabled: true
-
-# Scheduled Backup CR (Operator-native, replaces CronJob backup)
-backupScheduledCR:
-  enabled: false  # Set to true to enable scheduled Backup CR
-  cron: "*/1 * * * *"  # Cron schedule for backups
-  suspend: false
-  timeZone: "UTC"
-  maxRetention: 720h # 30 days
-  compression: bzip2
-  s3:
-    bucket: backups
-    endpoint: minio.minio.svc.cluster.local:9000
-    accessKeyIdSecretKeyRef:
-      name: minio
-      key: access-key-id
-    secretAccessKeySecretKeyRef:
-      name: minio
-      key: secret-access-key
-    tls:
-      enabled: true
-      caSecretKeyRef:
-        name: minio-ca
-        key: ca.crt
-  stagingStorage:
-    size: 10Gi
-    accessMode: ReadWriteOnce
-  args:
-    - --single-transaction
-    - --all-databases
-  logLevel: info
-  resources:
+      cpu: 1  # int
+      memory: 1  # int
     requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 300m
-      memory: 512Mi
-
-# Example for mariadbMinimal
-mariadbMinimal:
-  rootPasswordSecretKeyRef:
-    name: "mariadb-minimal"
-    key: "root-password"
+      cpu: 1  # int
+      memory: 1  # int
+  serviceAccountName: ""  # string
   storage:
-    size: 1Gi
+    persistentVolumeClaim:
+      accessModes: ""  # string
+      resources:
+        requests:
+          storage: ""  # string
 
-# Example for mariadbFull
-mariadbFull:
-  rootPasswordSecretKeyRef:
-    name: "mariadb-full"
-    key: "root-password"
-  username: "mariadb"
-  passwordSecretKeyRef:
-    name: "mariadb-password"
-    key: "password"
-    generate: true
-  database: "mariadb"
-  port: 3306
+# Backupnfs Configuration
+backupNfs:
+  mariaDbRefName: ""  # string
   storage:
-    size: 1Gi
-  service:
-    type: LoadBalancer
-    metadata:
-      annotations:
-        metallb: "172.18.0.20"
-  myCnf: |
-    [mariadb]
-    bind-address=*
-    default_storage_engine=InnoDB
-    binlog_format=row
-    innodb_autoinc_lock_mode=2
-    innodb_buffer_pool_size=1024M
-    max_allowed_packet=256M
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      memory: 1Gi
-  metrics:
-    enabled: true
+    volume:
+      nfs:
+        path: ""  # string
+        server: ""  # string
 
-# Example for mariadbReplication
-mariadbReplication:
-  rootPasswordSecretKeyRef:
-    name: "mariadb-replication"
-    key: "root-password"
+# Backupretention Configuration
+backupRetention:
+  mariaDbRefName: ""  # string
+  maxRetention: ""  # string
   storage:
-    size: 1Gi
-  replicas: 2
-  replication:
-    enabled: true
-  service:
-    type: LoadBalancer
-    metadata:
-      annotations:
-        metallb: "172.18.0.21"
-  metrics:
-    enabled: true
+    persistentVolumeClaim:
+      accessModes: ""  # string
+      resources:
+        requests:
+          storage: ""  # string
 
-# Example for mariadbGaleraFull
-mariadbGaleraFull:
-  rootPasswordSecretKeyRef:
-    name: "mariadb-galera-full"
-    key: "root-password"
+# Backups3 Configuration
+backupS3:
+  compression: ""  # string
+  mariaDbRefName: ""  # string
+  maxRetention: ""  # string
   storage:
-    size: 1Gi
-  replicas: 3
-  galera:
-    enabled: true
-  service:
-    type: LoadBalancer
-    metadata:
-      annotations:
-        metallb: "172.18.0.150"
-  primaryService:
-    type: LoadBalancer
-    metadata:
-      annotations:
-        metallb: "172.18.0.160"
-  secondaryService:
-    type: LoadBalancer
-    metadata:
-      annotations:
-        metallb: "172.18.0.161"
-  metrics:
-    enabled: true
-
-# Example for mariadbGaleraProduction
-mariadbGaleraProduction:
-  rootPasswordSecretKeyRef:
-    name: "mariadb-galera-production"
-    key: "root-password"
-  storage:
-    size: 1Gi
-  replicas: 3
-  galera:
-    enabled: true
-  service:
-    type: LoadBalancer
-    metadata:
-      annotations:
-        metallb: "172.18.0.150"
-  primaryService:
-    type: LoadBalancer
-    metadata:
-      annotations:
-        metallb: "172.18.0.160"
-  secondaryService:
-    type: LoadBalancer
-    metadata:
-      annotations:
-        metallb: "172.18.0.161"
-  metrics:
-    enabled: true
-
-# Example for mariadbGaleraMaxscale
-mariadbGaleraMaxscale:
-  rootPasswordSecretKeyRef:
-    name: "mariadb-galera-maxscale"
-    key: "root-password"
-  username: "mariadb"
-  passwordSecretKeyRef:
-    name: "mariadb-password"
-    key: "password"
-    generate: true
-  database: "mariadb"
-  storage:
-    size: 1Gi
-  replicas: 3
-  maxScale:
-    enabled: true
-    kubernetesService:
-      type: LoadBalancer
-      metadata:
-        annotations:
-          metallb: "172.18.0.22"
-    guiKubernetesService:
-      type: LoadBalancer
-      metadata:
-        annotations:
-          metallb: "172.18.0.23"
-    connection:
-      secretName: "maxscale-conn"
-      port: 3306
-    metrics:
-      enabled: true
-  galera:
-    enabled: true
-  service:
-    type: LoadBalancer
-    metadata:
-      annotations:
-        metallb: "172.18.0.24"
-  primaryService:
-    type: LoadBalancer
-    metadata:
-      annotations:
-        metallb: "172.18.0.25"
-  secondaryService:
-    type: LoadBalancer
-    metadata:
-      annotations:
-        metallb: "172.18.0.26"
-  metrics:
-    enabled: true
-
-# Example for mariadbGaleraFromS3
-mariadbGaleraFromS3:
-  storage:
-    size: 1Gi
-  replicas: 3
-  galera:
-    enabled: true
-  bootstrapFrom:
     s3:
-      bucket: "backups"
-      prefix: "mariadb"
-      endpoint: "minio.minio.svc.cluster.local:9000"
-      region: "us-east-1"
       accessKeyIdSecretKeyRef:
-        name: "minio"
-        key: "access-key-id"
+        key: ""  # string
+        name: ""  # string
+      bucket: ""  # string
+      endpoint: ""  # string
+      prefix: ""  # string
+      region: ""  # string
       secretAccessKeySecretKeyRef:
-        name: "minio"
-        key: "secret-access-key"
+        key: ""  # string
+        name: ""  # string
       tls:
-        enabled: true
         caSecretKeyRef:
-          name: "minio-ca"
-          key: "ca.crt"
+          key: ""  # string
+          name: ""  # string
+        enabled: true  # bool
+
+# Backups3staging Configuration
+backupS3Staging:
+  compression: ""  # string
+  mariaDbRefName: ""  # string
+  maxRetention: ""  # string
+  stagingStorage:
+    persistentVolumeClaim:
+      accessModes: ""  # string
+      resources:
+        requests:
+          storage: ""  # string
+  storage:
+    s3:
+      accessKeyIdSecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      bucket: ""  # string
+      endpoint: ""  # string
+      prefix: ""  # string
+      region: ""  # string
+      secretAccessKeySecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      tls:
+        caSecretKeyRef:
+          key: ""  # string
+          name: ""  # string
+        enabled: true  # bool
+
+# Backupscheduled Configuration
+backupScheduled:
+  affinity:
+    antiAffinityEnabled: ""  # string
+  args: ""  # string
+  compression: ""  # string
+  logLevel: ""  # string
+  mariaDbRefName: ""  # string
+  maxRetention: ""  # string
+  resources:
+    limits:
+      cpu: 1  # int
+      memory: 1  # int
+    requests:
+      cpu: 1  # int
+      memory: 1  # int
+  schedule:
+    cron: ""  # string
+    suspend: ""  # string
+  stagingStorage:
+    persistentVolumeClaim:
+      accessModes: ""  # string
+      resources:
+        requests:
+          storage: ""  # string
+  storage:
+    s3:
+      accessKeyIdSecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      bucket: ""  # string
+      endpoint: ""  # string
+      secretAccessKeySecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      tls:
+        caSecretKeyRef:
+          key: ""  # string
+          name: ""  # string
+        enabled: true  # bool
+  timeZone: ""  # string
+
+# Backupspecificdatabases Configuration
+backupSpecificDatabases:
+  databases: ""  # string
+  mariaDbRefName: ""  # string
+  maxRetention: ""  # string
+  storage:
+    s3:
+      accessKeyIdSecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      bucket: ""  # string
+      endpoint: ""  # string
+      region: ""  # string
+      secretAccessKeySecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      tls:
+        caSecretKeyRef:
+          key: ""  # string
+          name: ""  # string
+        enabled: true  # bool
+
+# Connection Configuration
+connection:
+  database: ""  # string
+  healthCheck:
+    interval: ""  # string
+    retryInterval: ""  # string
+  mariaDbRefName: ""  # string
+  params:
+    parseTime: ""  # string
+    timeout: ""  # string
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secretName: ""  # string
+  secretTemplate:
+    databaseKey: ""  # string
+    hostKey: ""  # string
+    key: ""  # string
+    metadata:
+      annotations:
+        connection: ""  # string
+      labels:
+        connection: ""  # string
+    passwordKey: ""  # string
+    portKey: ""  # string
+    usernameKey: ""  # string
+  serviceName: ""  # string
+  username: ""  # string
+
+# Connectioncustomdsn Configuration
+connectionCustomDsn:
+  database: ""  # string
+  healthCheck:
+    interval: ""  # string
+    retryInterval: ""  # string
+  mariaDbRefName: ""  # string
+  params:
+    parseTime: ""  # string
+    timeout: ""  # string
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secretName: ""  # string
+  secretTemplate:
+    databaseKey: ""  # string
+    hostKey: ""  # string
+    key: ""  # string
+    metadata:
+      annotations:
+        connection: ""  # string
+      labels:
+        connection: ""  # string
+    passwordKey: ""  # string
+    portKey: ""  # string
+    usernameKey: ""  # string
+  serviceName: ""  # string
+  username: ""  # string
+
+# Connectionmaxscale Configuration
+connectionMaxscale:
+  connection:
+    healthCheckInterval: ""  # string
+    maxScaleRefName: ""  # string
+    name: ""  # string
+    passwordSecretKeyRefKey: ""  # string
+    passwordSecretKeyRefName: ""  # string
+    port: 1  # int
+    secretName: ""  # string
+    username: ""  # string
+  healthCheck:
+    retryInterval: ""  # string
+
+# Connectionmaxscaletls Configuration
+connectionMaxscaleTls:
+  connection:
+    healthCheckInterval: ""  # string
+    maxScaleRefName: ""  # string
+    name: ""  # string
+    tlsClientCertSecretRefName: ""  # string
+    username: ""  # string
+  grant:
+    database: ""  # string
+    host: ""  # string
+    mariaDbRefName: ""  # string
+    name: ""  # string
+    privileges: ""  # string
+    table: ""  # string
+    username: ""  # string
+  user:
+    host: ""  # string
+    mariaDbRefName: ""  # string
+    name: ""  # string
+    require:
+      issuer: ""  # string
+      subject: ""  # string
+
+# Connectiontls Configuration
+connectionTls:
+  connection:
+    healthCheckInterval: ""  # string
+    mariaDbRefName: ""  # string
+    name: ""  # string
+    tlsClientCertSecretRefName: ""  # string
+    username: ""  # string
+  grant:
+    database: ""  # string
+    host: ""  # string
+    mariaDbRefName: ""  # string
+    name: ""  # string
+    privileges: ""  # string
+    table: ""  # string
+    username: ""  # string
+  user:
+    host: ""  # string
+    mariaDbRefName: ""  # string
+    name: ""  # string
+    require:
+      issuer: ""  # string
+      subject: ""  # string
+
+# Database Configuration
+database:
+  characterSet: ""  # string
+  cleanupPolicy: ""  # string
+  collate: ""  # string
+  requeueInterval: ""  # string
+  retryInterval: ""  # string
+
+# Grant Configuration
+grant:
+  cleanupPolicy: ""  # string
+  database: ""  # string
+  grantOption: ""  # string
+  host: ""  # string
+  mariaDbRefName: ""  # string
+  privileges: ""  # string
+  requeueInterval: ""  # string
+  retryInterval: ""  # string
+  table: ""  # string
+  username: ""  # string
+
+# Image Configuration
+image:
+  repository: ""  # string
+  tag: ""  # string
+
+# Livenessprobe Configuration
+livenessProbe:
+  initialDelaySeconds: ""  # string
+  periodSeconds: ""  # string
+
+# Mariadb Configuration
+mariadb:
+  characterSetServer: ""  # string
+  collationServer: ""  # string
+  database: ""  # string
+  innodbBufferPoolSize: ""  # string
+  maxConnections: 1  # int
+  metrics:
+    enabled: true  # bool
+  myCnf: ""  # string
+  name: ""  # string
+  passwordSecretKeyRef:
+    generate: ""  # string
+    key: ""  # string
+    name: ""  # string
+  port: 1  # int
+  resources:
+    limits:
+      memory: 1  # int
+    requests:
+      cpu: 1  # int
+      memory: 1  # int
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  service:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  sqlMode: ""  # string
+  storage:
+    size: ""  # string
+  username: ""  # string
+
+# Mariadbconnection Configuration
+mariadbConnection:
+  connection:
+    healthCheck:
+      interval: ""  # string
+      retryInterval: ""  # string
+    params:
+      parseTime: ""  # string
+    secretName: ""  # string
+    secretTemplate:
+      key: ""  # string
+  database: ""  # string
+  service:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+  username: ""  # string
+
+# Mariadbfrombackup Configuration
+mariadbFromBackup:
+  bootstrapFrom:
+    backupRef:
+      name: ""  # string
+    restoreJob:
+      affinity:
+        antiAffinityEnabled: ""  # string
+      args:
+        verbose: ""  # string
+      metadata:
+        labels:
+          sidecarIstioIoInject: ""  # string
+      resources:
+        limits:
+          memory: 1  # int
+        requests:
+          cpu: 1  # int
+          memory: 1  # int
+    targetRecoveryTime: ""  # string
+  storage:
+    size: ""  # string
+
+# Mariadbfrombackupscheduled Configuration
+mariadbFromBackupScheduled:
+  bootstrapFrom:
+    backupRef:
+      name: ""  # string
+    restoreJob:
+      affinity:
+        antiAffinityEnabled: ""  # string
+      args:
+        verbose: ""  # string
+      metadata:
+        labels:
+          sidecarIstioIoInject: ""  # string
+      resources:
+        limits:
+          memory: 1  # int
+        requests:
+          cpu: 1  # int
+          memory: 1  # int
+    targetRecoveryTime: ""  # string
+  storage:
+    size: ""  # string
+
+# Mariadbfromnfs Configuration
+mariadbFromNfs:
+  bootstrapFrom:
+    restoreJob:
+      args:
+        verbose: ""  # string
+      metadata:
+        labels:
+          sidecarIstioIoInject: ""  # string
+      resources:
+        limits:
+          memory: 1  # int
+        requests:
+          cpu: 1  # int
+          memory: 1  # int
+    targetRecoveryTime: ""  # string
+    volume:
+      nfs:
+        path: ""  # string
+        server: ""  # string
+  storage:
+    size: ""  # string
+
+# Mariadbfrompvc Configuration
+mariadbFromPvc:
+  bootstrapFrom:
+    restoreJob:
+      args:
+        verbose: ""  # string
+      metadata:
+        labels:
+          sidecarIstioIoInject: ""  # string
+      resources:
+        limits:
+          memory: 1  # int
+        requests:
+          cpu: 1  # int
+          memory: 1  # int
+    targetRecoveryTime: ""  # string
+    volume:
+      persistentVolumeClaim:
+        claimName: ""  # string
+  storage:
+    size: ""  # string
+
+# Mariadbfroms3 Configuration
+mariadbFromS3:
+  bootstrapFrom:
+    restoreJob:
+      args:
+        verbose: ""  # string
+      metadata:
+        labels:
+          sidecarIstioIoInject: ""  # string
+      resources:
+        limits:
+          memory: 1  # int
+        requests:
+          cpu: 1  # int
+          memory: 1  # int
+    s3:
+      accessKeyIdSecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      bucket: ""  # string
+      endpoint: ""  # string
+      prefix: ""  # string
+      secretAccessKeySecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      tls:
+        caSecretKeyRef:
+          key: ""  # string
+          name: ""  # string
+        enabled: true  # bool
     stagingStorage:
       persistentVolumeClaim:
+        accessModes: ""  # string
         resources:
           requests:
-            storage: 1Gi
-        accessModes:
-          - ReadWriteOnce
-    restoreJob:
-      resources:
-        requests:
-          cpu: 100m
-          memory: 128Mi
-        limits:
-          memory: 1Gi
-  service:
-    type: LoadBalancer
-  primaryService:
-    type: LoadBalancer
-  secondaryService:
-    type: LoadBalancer
-  metrics:
-    enabled: true
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      memory: 1Gi
-
-# Example for backupScheduled
-backupScheduled:
-  mariaDbRefName: "mariadb"
-  schedule:
-    suspend: false
-  timeZone: "UTC"
-  maxRetention: "720h"
-  compression: "bzip2"
+            storage: ""  # string
+    targetRecoveryTime: ""  # string
   storage:
-    s3:
-      bucket: "backups"
-      endpoint: "minio.minio.svc.cluster.local:9000"
-      accessKeyIdSecretKeyRef:
-        name: "minio"
-        key: "access-key-id"
-      secretAccessKeySecretKeyRef:
-        name: "minio"
-        key: "secret-access-key"
-      tls:
-        enabled: true
-        caSecretKeyRef:
-          name: "minio-ca"
-          key: "ca.crt"
-  stagingStorage:
-    persistentVolumeClaim:
-      resources:
-        requests:
-          storage: 10Gi
-      accessModes:
-        - ReadWriteOnce
-  logLevel: info
-  resources:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 300m
-      memory: 512Mi
-  affinity:
-    antiAffinityEnabled: true
+    size: ""  # string
 
-# Example for backupRetention
-backupRetention:
-  mariaDbRefName: "mariadb"
-  maxRetention: "720h"
-  storage:
-    persistentVolumeClaim:
-      resources:
-        requests:
-          storage: 100Mi
-      accessModes:
-        - ReadWriteOnce
-
-# Example for restoreTargetRecoveryTime
-restoreTargetRecoveryTime:
-  mariaDbRefName: "mariadb"
-  backupRef: "backup"
-  targetRecoveryTime: "2023-12-19T09:00:00Z"
-  s3:
-    bucket: "backups"
-    prefix: "mariadb"
-    endpoint: "minio.minio.svc.cluster.local:9000"
-    region: "us-east-1"
-    accessKeyIdSecretKeyRef:
-      name: "minio"
-      key: "access-key-id"
-    secretAccessKeySecretKeyRef:
-      name: "minio"
-      key: "secret-access-key"
-    tls:
-      enabled: true
-      caSecretKeyRef:
-        name: "minio-ca"
-        key: "ca.crt"
-
-# Example for connectionCustomDsn
-connectionCustomDsn:
-  mariaDbRefName: "mariadb"
-  dsn: "user:password@tcp(mariadb:3306)/database"
-  secretName: "connection-custom-dsn"
-  secretTemplate:
-    metadata:
-      labels:
-        connection: "custom-dsn"
-      annotations:
-        connection: "custom-dsn"
-    key: "dsn"
-
-# Example for connectionMaxscaleTls
-connectionMaxscaleTls:
-  mariaDbRefName: "mariadb"
-  username: "maxuser"
-  passwordSecretKeyRef:
-    name: "maxuser-secret"
-    key: "password"
-  database: "maxdb"
-  params:
-    parseTime: "true"
-    timeout: "5s"
-  secretName: "connection-maxscale-tls"
-  tls:
-    enabled: true
-    caSecretKeyRef:
-      name: "maxscale-ca"
-      key: "ca.crt"
-  healthCheck:
-    interval: "30s"
-    retryInterval: "3s"
-  serviceName: "maxscale"
-
-# Example for connectionTls
-connectionTls:
-  mariaDbRefName: "mariadb"
-  username: "tlsuser"
-  passwordSecretKeyRef:
-    name: "tlsuser-secret"
-    key: "password"
-  database: "tlsdb"
-  params:
-    parseTime: "true"
-    timeout: "5s"
-  secretName: "connection-tls"
-  tls:
-    enabled: true
-    caSecretKeyRef:
-      name: "tls-ca"
-      key: "ca.crt"
-  healthCheck:
-    interval: "30s"
-    retryInterval: "3s"
-  serviceName: "mariadb"
-
-# Example for restoreS3
-restoreS3:
-  mariaDbRefName: "mariadb"
-  targetRecoveryTime: "2023-12-19T09:00:00Z"
-  s3:
-    bucket: "backups"
-    prefix: "mariadb"
-    endpoint: "minio.minio.svc.cluster.local:9000"
-    region: "us-east-1"
-    accessKeyIdSecretKeyRef:
-      name: "minio"
-      key: "access-key-id"
-    secretAccessKeySecretKeyRef:
-      name: "minio"
-      key: "secret-access-key"
-    tls:
-      enabled: true
-      caSecretKeyRef:
-        name: "minio-ca"
-        key: "ca.crt"
-
-# Example for restoreS3Staging
-restoreS3Staging:
-  mariaDbRefName: "mariadb"
-  s3:
-    bucket: "backups"
-    prefix: "mariadb"
-    endpoint: "minio.minio.svc.cluster.local:9000"
-    region: "us-east-1"
-    accessKeyIdSecretKeyRef:
-      name: "minio"
-      key: "access-key-id"
-    secretAccessKeySecretKeyRef:
-      name: "minio"
-      key: "secret-access-key"
-    tls:
-      enabled: true
-      caSecretKeyRef:
-        name: "minio-ca"
-        key: "ca.crt"
-  stagingStorage:
-    persistentVolumeClaim:
-      resources:
-        requests:
-          storage: 1Gi
-      accessModes:
-        - ReadWriteOnce
-
-# Example for restoreSpecificDatabase
-restoreSpecificDatabase:
-  mariaDbRefName: "mariadb"
-  database: "mydb"
-  s3:
-    bucket: "backups"
-    prefix: "mariadb"
-    endpoint: "minio.minio.svc.cluster.local:9000"
-    region: "us-east-1"
-    accessKeyIdSecretKeyRef:
-      name: "minio"
-      key: "access-key-id"
-    secretAccessKeySecretKeyRef:
-      name: "minio"
-      key: "secret-access-key"
-    tls:
-      enabled: true
-      caSecretKeyRef:
-        name: "minio-ca"
-        key: "ca.crt"
-
-# Example for restoreTargetRecoveryTime
-restoreTargetRecoveryTime:
-  mariaDbRefName: "mariadb"
-  backupRef: "backup"
-  targetRecoveryTime: "2023-12-19T09:00:00Z"
-  s3:
-    bucket: "backups"
-    prefix: "mariadb"
-    endpoint: "minio.minio.svc.cluster.local:9000"
-    region: "us-east-1"
-    accessKeyIdSecretKeyRef:
-      name: "minio"
-      key: "access-key-id"
-    secretAccessKeySecretKeyRef:
-      name: "minio"
-      key: "secret-access-key"
-    tls:
-      enabled: true
-      caSecretKeyRef:
-        name: "minio-ca"
-        key: "ca.crt"
-
-# Example for userPasswordHash
-userPasswordHash:
-  name: "user-hash"
-  mariaDbRefName: "mariadb"
-  passwordHash: "*HASHEDPASSWORD*"
-  host: "%"
-  cleanupPolicy: Delete
-  requeueInterval: 30s
-  retryInterval: 5s
-
-# Example for userPasswordPlugin
-userPasswordPlugin:
-  name: "user-plugin"
-  mariaDbRefName: "mariadb"
-  passwordSecretKeyRef:
-    name: "user-plugin-secret"
-    key: "password"
-  authenticationPlugin: "mysql_native_password"
-  host: "%"
-  cleanupPolicy: Delete
-  requeueInterval: 30s
-  retryInterval: 5s
-
-# Example for userTls
-userTls:
-  name: "user-tls"
-  mariaDbRefName: "mariadb"
-  passwordSecretKeyRef:
-    name: "user-tls-secret"
-    key: "password"
-  tls:
-    enabled: true
-    caSecretKeyRef:
-      name: "tls-ca"
-      key: "ca.crt"
-  host: "%"
-  cleanupPolicy: Delete
-  requeueInterval: 30s
-  retryInterval: 5s
-
-maxscaleFull:
-  name: "maxscale"
-  image: "mariadb/maxscale:latest"
-  imagePullPolicy: "IfNotPresent"
-  imagePullSecrets: []
-  inheritMetadata: {}
-  podMetadata: {}
-  replicas: 1
-  servers: []
-  services: []
-  monitor: {}
-  admin: {}
-  config: {}
-  auth: {}
-  podSecurityContext: {}
-  securityContext: {}
-  updateStrategy: {}
-  kubernetesService:
-    type: "ClusterIP"
-    annotations:
-      metallbLoadBalancerIP: ""
-  guiKubernetesService:
-    type: "ClusterIP"
-    annotations:
-      metallbLoadBalancerIP: ""
+# Mariadbfull Configuration
+mariadbFull:
   connection:
-    secretName: ""
-    port: 3306
+    healthCheck:
+      interval: ""  # string
+      retryInterval: ""  # string
+    params:
+      parseTime: ""  # string
+    secretName: ""  # string
+    secretTemplate:
+      key: ""  # string
+  database: ""  # string
+  env: ""  # string
+  image: ""  # string
+  imagePullPolicy: ""  # string
+  imagePullSecrets:
+    name: ""  # string
+  livenessProbe:
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
   metrics:
-    enabled: false
-  suspend: false
-  resources: {}
-  livenessProbe: {}
+    enabled: true  # bool
+  myCnf: ""  # string
+  myCnfConfigMapKeyRef:
+    key: ""  # string
+    name: ""  # string
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  podDisruptionBudget:
+    maxUnavailable: ""  # string
+  podSecurityContext:
+    runAsUser: ""  # string
+  port: 1  # int
+  readinessProbe:
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
+  resources:
+    limits:
+      memory: 1  # int
+    requests:
+      cpu: 1  # int
+      memory: 1  # int
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  securityContext:
+    allowPrivilegeEscalation: ""  # string
+  service:
+    externalTrafficPolicy: ""  # string
+    metadata:
+      annotations:
+        metallb: ""  # string
+    sessionAffinity: ""  # string
+    type: ""  # string
+  startupProbe:
+    failureThreshold: ""  # string
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
+  storage:
+    resizeInUseVolumes: ""  # string
+    size: ""  # string
+    storageClassName: ""  # string
+    waitForVolumeResize: ""  # string
+  suspend: ""  # string
+  timeZone: ""  # string
+  updateStrategy:
+    type: ""  # string
+  username: ""  # string
+  volumeMounts: ""  # string
+  volumes: ""  # string
+
+# Mariadbgaleraaffinity Configuration
+mariadbGaleraAffinity:
+  affinity:
+    antiAffinityEnabled: ""  # string
+    nodeAffinity:
+      matchExpressions: ""  # string
+  galera:
+    enabled: true  # bool
+  metrics:
+    enabled: true  # bool
+  primaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  replicas: 1  # int
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  service:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+
+# Mariadbgalerafroms3 Configuration
+mariadbGaleraFromS3:
+  bootstrapFrom:
+    restoreJob:
+      args:
+        verbose: ""  # string
+      metadata:
+        labels:
+          sidecarIstioIoInject: ""  # string
+      resources:
+        limits:
+          memory: 1  # int
+        requests:
+          cpu: 1  # int
+          memory: 1  # int
+    s3:
+      accessKeyIdSecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      bucket: ""  # string
+      endpoint: ""  # string
+      prefix: ""  # string
+      secretAccessKeySecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      tls:
+        caSecretKeyRef:
+          key: ""  # string
+          name: ""  # string
+        enabled: true  # bool
+    stagingStorage:
+      persistentVolumeClaim:
+        accessModes: ""  # string
+        resources:
+          requests:
+            storage: ""  # string
+    targetRecoveryTime: ""  # string
+  galera:
+    enabled: true  # bool
+  metrics:
+    enabled: true  # bool
+  primaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  replicas: 1  # int
+  resources:
+    limits:
+      memory: 1  # int
+    requests:
+      cpu: 1  # int
+      memory: 1  # int
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  service:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+
+# Mariadbgalerafull Configuration
+mariadbGaleraFull:
+  affinity:
+    antiAffinityEnabled: ""  # string
+  connection:
+    secretName: ""  # string
+    secretTemplate:
+      key: ""  # string
+  database: ""  # string
+  galera:
+    agent:
+      gracefulShutdownTimeout: ""  # string
+      image: ""  # string
+      kubernetesAuth:
+        enabled: true  # bool
+      port: 1  # int
+    availableWhenDonor: ""  # string
+    config:
+      reuseStorageVolume: ""  # string
+      volumeClaimTemplate:
+        accessModes: ""  # string
+        resources:
+          requests:
+            storage: ""  # string
+    enabled: true  # bool
+    galeraLibPath: ""  # string
+    initContainer:
+      image: ""  # string
+    initJob:
+      metadata:
+        labels:
+          sidecarIstioIoInject: ""  # string
+      resources:
+        limits:
+          memory: 1  # int
+        requests:
+          cpu: 1  # int
+          memory: 1  # int
+    primary:
+      automaticFailover: ""  # string
+      podIndex: ""  # string
+    providerOptions:
+      gcsFcLimit: ""  # string
+    recovery:
+      clusterBootstrapTimeout: ""  # string
+      clusterHealthyTimeout: ""  # string
+      clusterMonitorInterval: ""  # string
+      enabled: true  # bool
+      forceClusterBootstrapInPod: ""  # string
+      job:
+        metadata:
+          labels:
+            sidecarIstioIoInject: ""  # string
+        resources:
+          limits:
+            memory: 1  # int
+          requests:
+            cpu: 1  # int
+            memory: 1  # int
+      minClusterSize: ""  # string
+      podRecoveryTimeout: ""  # string
+      podSyncTimeout: ""  # string
+    replicaThreads: ""  # string
+    sst: ""  # string
+  livenessProbe:
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
+  maxScale:
+    connection:
+      port: 1  # int
+      secretName: ""  # string
+    enabled: true  # bool
+    kubernetesService:
+      metadata:
+        annotations:
+          metallb: ""  # string
+      type: ""  # string
+    metrics:
+      enabled: true  # bool
+    tls:
+      enabled: true  # bool
+  metrics:
+    enabled: true  # bool
+  myCnf: ""  # string
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  podDisruptionBudget:
+    maxUnavailable: ""  # string
+  primaryConnection:
+    secretName: ""  # string
+    secretTemplate:
+      key: ""  # string
+  primaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  readinessProbe:
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
+  replicas: 1  # int
+  replicasAllowEvenNumber: ""  # string
+  resources:
+    limits:
+      memory: 1  # int
+    requests:
+      cpu: 1  # int
+      memory: 1  # int
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryConnection:
+    secretName: ""  # string
+    secretTemplate:
+      key: ""  # string
+  secondaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  service:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  startupProbe:
+    failureThreshold: ""  # string
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
+  storage:
+    resizeInUseVolumes: ""  # string
+    size: ""  # string
+    storageClassName: ""  # string
+    volumeClaimTemplate:
+      accessModes: ""  # string
+      resources:
+        requests:
+          storage: ""  # string
+      storageClassName: ""  # string
+    waitForVolumeResize: ""  # string
+  suspend: ""  # string
+  timeZone: ""  # string
+  tls:
+    enabled: true  # bool
+    required: ""  # string
+  tolerations: ""  # string
+  updateStrategy:
+    autoUpdateDataPlane: ""  # string
+    type: ""  # string
+  username: ""  # string
+
+# Mariadbgaleramaxscale Configuration
+mariadbGaleraMaxscale:
+  database: ""  # string
+  galera:
+    enabled: true  # bool
+  maxScale:
+    connection:
+      port: 1  # int
+      secretName: ""  # string
+    enabled: true  # bool
+    guiKubernetesService:
+      metadata:
+        annotations:
+          metallb: ""  # string
+      type: ""  # string
+    kubernetesService:
+      metadata:
+        annotations:
+          metallb: ""  # string
+      type: ""  # string
+    metrics:
+      enabled: true  # bool
+  metrics:
+    enabled: true  # bool
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  primaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  replicas: 1  # int
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  service:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+  username: ""  # string
+
+# Mariadbgaleraproduction Configuration
+mariadbGaleraProduction:
+  affinity:
+    antiAffinityEnabled: ""  # string
+  galera:
+    enabled: true  # bool
+  livenessProbe:
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
+  metrics:
+    enabled: true  # bool
+  myCnf: ""  # string
+  nodeSelector:
+    arch: ""  # string
+  podDisruptionBudget:
+    maxUnavailable: ""  # string
+  priorityClassName: ""  # string
+  readinessProbe:
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
+  replicas: 1  # int
+  resources:
+    limits:
+      memory: 1  # int
+    requests:
+      cpu: 1  # int
+      memory: 1  # int
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  startupProbe:
+    failureThreshold: ""  # string
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
+  storage:
+    size: ""  # string
+  tls:
+    enabled: true  # bool
+    required: ""  # string
+  updateStrategy:
+    type: ""  # string
+
+# Mariadbgaleratls Configuration
+mariadbGaleraTls:
+  database: ""  # string
+  galera:
+    enabled: true  # bool
+  metrics:
+    enabled: true  # bool
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  primaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  replicas: 1  # int
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  service:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+  tls:
+    enabled: true  # bool
+    required: ""  # string
+  username: ""  # string
+
+# Mariadbgaleratlsbringyourca Configuration
+mariadbGaleraTlsBringYourCa:
+  database: ""  # string
+  galera:
+    enabled: true  # bool
+  metrics:
+    enabled: true  # bool
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  primaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  replicas: 1  # int
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  service:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+  tls:
+    clientCASecretRef:
+      name: ""  # string
+    enabled: true  # bool
+    required: ""  # string
+    serverCASecretRef:
+      name: ""  # string
+  username: ""  # string
+
+# Mariadbgaleratlscertmanager Configuration
+mariadbGaleraTlsCertManager:
+  database: ""  # string
+  galera:
+    enabled: true  # bool
+  metrics:
+    enabled: true  # bool
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  primaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  replicas: 1  # int
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  service:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+  tls:
+    clientCertIssuerRef:
+      kind: ""  # string
+      name: ""  # string
+    enabled: true  # bool
+    required: ""  # string
+    serverCertIssuerRef:
+      kind: ""  # string
+      name: ""  # string
+  username: ""  # string
+
+# Mariadbgaleratlsmanual Configuration
+mariadbGaleraTlsManual:
+  database: ""  # string
+  galera:
+    enabled: true  # bool
+  metrics:
+    enabled: true  # bool
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  primaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  replicas: 1  # int
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryService:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  service:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+  tls:
+    clientCASecretRef:
+      name: ""  # string
+    clientCertSecretRef:
+      name: ""  # string
+    enabled: true  # bool
+    required: ""  # string
+    serverCASecretRef:
+      name: ""  # string
+    serverCertSecretRef:
+      name: ""  # string
+  username: ""  # string
+
+# Mariadbinitandsidecar Configuration
+mariadbInitAndSidecar:
+  initContainers:
+    - name: "init-mariadb"
+      image: "docker-registry1.mariadb.com/library/mariadb:11.4.5"
+      command:
+        - /bin/sh
+        - -c
+        - "echo Hello from initContainer"
+      env:
+        - name: MY_ENV
+          value: "example-value"
+  sidecarContainers:
+    - name: "sidecar"
+      image: "busybox"
+      args:
+        - sleep
+        - infinity
+      env:
+        - name: INSTANCE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "mariadb-secret"
+              key: "password"
+  volumes:
+    - name: tmp
+      emptyDir:
+        sizeLimit: "100Mi"
+    - name: mariadb-secret
+      secret:
+        secretName: "mariadb-secret"
+    - name: mariadb-configmap
+      configMap:
+        name: "mariadb-configmap"
+  volumeMounts:
+    - name: tmp
+      mountPath: "/tmp"
+    - name: mariadb-secret
+      mountPath: "/mariadb-secret"
+    - name: mariadb-configmap
+      mountPath: "/mariadb-configmap"
+  storage:
+    size: "1Gi"
+
+# Mariadbinitmariabackup Configuration
+mariadbInitMariabackup:
+  initContainers:
+    - image: "docker-registry1.mariadb.com/library/mariadb:11.4.5"  # string
+  storage:
+    size: "1Gi"  # string
+  volumeMounts:
+    - name: mariabackup
+      mountPath: "/var/mariadb/backup/"  # string
+  volumes:
+    - name: mariabackup
+      persistentVolumeClaim:
+        claimName: "mariabackup"  # string
+
+# Mariadbmetadata Configuration
+mariadbMetadata:
+  inheritMetadata:
+    annotations:
+      databaseMyorgIo: ""  # string
+    labels:
+      databaseMyorgIo: ""  # string
+  podMetadata:
+    annotations:
+      sidecarIstioIoInject: ""  # string
+    labels:
+      sidecarIstioIoInject: ""  # string
+  storage:
+    size: ""  # string
+
+# Mariadbmetrics Configuration
+mariadbMetrics:
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+  service:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+
+# Mariadbmetricsfull Configuration
+mariadbMetricsFull:
+  metrics:
+    enabled: true  # bool
+    exporter:
+      affinity:
+        antiAffinityEnabled: ""  # string
+      image: ""  # string
+      port: 1  # int
+      resources:
+        limits:
+          cpu: 1  # int
+          memory: 1  # int
+        requests:
+          cpu: 1  # int
+          memory: 1  # int
+    passwordSecretKeyRef:
+      key: ""  # string
+      name: ""  # string
+    serviceMonitor:
+      interval: ""  # string
+      jobLabel: ""  # string
+      prometheusRelease: ""  # string
+      scrapeTimeout: ""  # string
+    username: ""  # string
+  service:
+    metadata:
+      annotations:
+        metallb: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+
+# Mariadbminimal Configuration
+mariadbMinimal:
+  name: ""  # string
+  rootEmptyPassword: ""  # string
+  storage:
+    ephemeral: ""  # string
+
+# Mariadbmycnf Configuration
+mariadbMyCnf:
+  myCnf: ""  # string
+  name: ""  # string
+  storage:
+    size: ""  # string
+
+# Mariadbpasswordplugin Configuration
+mariadbPasswordPlugin:
+  connection:
+    healthCheck:
+      interval: ""  # string
+      retryInterval: ""  # string
+    params:
+      parseTime: ""  # string
+    secretName: ""  # string
+    secretTemplate:
+      key: ""  # string
+  database: ""  # string
+  name: ""  # string
+  passwordHashSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  passwordPlugin:
+    pluginArgSecretKeyRef:
+      key: ""  # string
+      name: ""  # string
+    pluginNameSecretKeyRef:
+      key: ""  # string
+      name: ""  # string
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  service:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+  username: ""  # string
+
+# Mariadbprobes Configuration
+mariadbProbes:
+  livenessProbe:
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
+  name: ""  # string
+  readinessProbe:
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
+  startupProbe:
+    failureThreshold: ""  # string
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
+  storage:
+    size: ""  # string
+
+# Mariadbreplication Configuration
+mariadbReplication:
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+  primaryService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  replicas: 1  # int
+  replication:
+    enabled: true  # bool
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  service:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+
+# Mariadbreplicationfull Configuration
+mariadbReplicationFull:
+  affinity:
+    antiAffinityEnabled: ""  # string
+  connection:
+    secretName: ""  # string
+    secretTemplate:
+      key: ""  # string
+  database: ""  # string
+  livenessProbe:
+    initialDelaySeconds: ""  # string
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
+  maxScale:
+    connection:
+      port: 1  # int
+      secretName: ""  # string
+    enabled: true  # bool
+    kubernetesService:
+      annotations:
+        metallbLoadBalancerIP: ""  # string
+      type: ""  # string
+    metrics:
+      enabled: true  # bool
+    tls:
+      enabled: true  # bool
+  maxScaleRef:
+    name: ""  # string
+  metrics:
+    enabled: true  # bool
+  myCnf: ""  # string
+  name: ""  # string
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  podDisruptionBudget:
+    maxUnavailable: ""  # string
+  primaryConnection:
+    secretName: ""  # string
+    secretTemplate:
+      key: ""  # string
+  primaryService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  readinessProbe:
+    initialDelaySeconds: ""  # string
+    periodSeconds: ""  # string
+    timeoutSeconds: ""  # string
+  replicas: 1  # int
+  replicasAllowEvenNumber: ""  # string
+  replication:
+    enabled: true  # bool
+    primary:
+      automaticFailover: ""  # string
+      podIndex: ""  # string
+    probesEnabled: ""  # string
+    replica:
+      connectionRetries: ""  # string
+      connectionTimeout: ""  # string
+      gtid: ""  # string
+      replPasswordSecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      syncTimeout: ""  # string
+      waitPoint: ""  # string
+    syncBinlog: ""  # string
+  resources:
+    limits:
+      memory: 1  # int
+    requests:
+      cpu: 1  # int
+      memory: 1  # int
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryConnection:
+    secretName: ""  # string
+    secretTemplate:
+      key: ""  # string
+  secondaryService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  service:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  storage:
+    resizeInUseVolumes: ""  # string
+    size: ""  # string
+    storageClassName: ""  # string
+    volumeClaimTemplate:
+      accessModes: ""  # string
+      resources:
+        requests:
+          storage: ""  # string
+      storageClassName: ""  # string
+    waitForVolumeResize: ""  # string
+  suspend: ""  # string
+  timeZone: ""  # string
+  tls:
+    enabled: true  # bool
+    required: ""  # string
+  tolerations:
+    effect: ""  # string
+    key: ""  # string
+    operator: ""  # string
+  updateStrategy:
+    type: ""  # string
+  username: ""  # string
+
+# Mariadbreplicationmaxscale Configuration
+mariadbReplicationMaxscale:
+  database: ""  # string
+  maxScale:
+    connection:
+      port: 1  # int
+      secretName: ""  # string
+    enabled: true  # bool
+    guiKubernetesService:
+      annotations:
+        metallbLoadBalancerIP: ""  # string
+      type: ""  # string
+    kubernetesService:
+      annotations:
+        metallbLoadBalancerIP: ""  # string
+      type: ""  # string
+    metrics:
+      enabled: true  # bool
+  maxScaleRef:
+    name: ""  # string
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  primaryService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  replicas: 1  # int
+  replication:
+    enabled: true  # bool
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  service:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+  username: ""  # string
+
+# Mariadbreplicationtls Configuration
+mariadbReplicationTls:
+  database: ""  # string
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  primaryService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  replicas: 1  # int
+  replication:
+    enabled: true  # bool
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  service:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+  tls:
+    enabled: true  # bool
+    required: ""  # string
+  username: ""  # string
+
+# Mariadbreplicationtlscertmanager Configuration
+mariadbReplicationTlsCertManager:
+  database: ""  # string
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  primaryService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  replicas: 1  # int
+  replication:
+    enabled: true  # bool
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  service:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+  tls:
+    clientCertIssuerRef:
+      kind: ""  # string
+      name: ""  # string
+    enabled: true  # bool
+    required: ""  # string
+    serverCertIssuerRef:
+      kind: ""  # string
+      name: ""  # string
+  username: ""  # string
+
+# Mariadbreplicationtlsmanual Configuration
+mariadbReplicationTlsManual:
+  database: ""  # string
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  primaryService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  replicas: 1  # int
+  replication:
+    enabled: true  # bool
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  secondaryService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  service:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+  tls:
+    clientCASecretRef:
+      name: ""  # string
+    clientCertSecretRef:
+      name: ""  # string
+    enabled: true  # bool
+    required: ""  # string
+    serverCASecretRef:
+      name: ""  # string
+    serverCertSecretRef:
+      name: ""  # string
+  username: ""  # string
+
+# Mariadbsuspend Configuration
+mariadbSuspend:
+  name: ""  # string
+  storage:
+    size: ""  # string
+  suspend: ""  # string
+
+# Mariadbtls Configuration
+mariadbTls:
+  metrics:
+    enabled: true  # bool
+  myCnf: ""  # string
+  name: ""  # string
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  service:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+  tls:
+    enabled: true  # bool
+    required: ""  # string
+
+# Mariadbtlsmanual Configuration
+mariadbTlsManual:
+  metrics:
+    enabled: true  # bool
+  myCnf: ""  # string
+  name: ""  # string
+  rootPasswordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  service:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  storage:
+    size: ""  # string
+  tls:
+    clientCASecretRef:
+      name: ""  # string
+    clientCertSecretRef:
+      name: ""  # string
+    enabled: true  # bool
+    required: ""  # string
+    serverCASecretRef:
+      name: ""  # string
+    serverCertSecretRef:
+      name: ""  # string
+
+# Maxscale Configuration
+maxscale:
+  guiKubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  kubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  mariaDbRef:
+    name: ""  # string
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+
+# Maxscaleexternal Configuration
+maxscaleExternal:
+  admin:
+    port: 1  # int
+  auth: ""  # string
+  config: ""  # string
+  connection:
+    port: 1  # int
+    secretName: ""  # string
+  kubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  metrics:
+    enabled: true  # bool
+  monitor: ""  # string
+  name: ""  # string
+  replicas: 1  # int
+  requeueInterval: ""  # string
+  servers: ""  # string
+  services: ""  # string
+
+# Maxscalefull Configuration
+maxscaleFull:
+  admin: ""  # string
+  affinity: ""  # string
+  auth: ""  # string
+  config: ""  # string
+  connection:
+    port: 1  # int
+    secretName: ""  # string
+  guiKubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  image: ""  # string
+  imagePullPolicy: ""  # string
+  imagePullSecrets: ""  # string
+  inheritMetadata: ""  # string
+  kubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  livenessProbe: ""  # string
+  metrics:
+    enabled: true  # bool
+  monitor: ""  # string
+  name: ""  # string
+  podDisruptionBudget: ""  # string
+  podMetadata: ""  # string
+  podSecurityContext: ""  # string
+  readinessProbe: ""  # string
+  replicas: 1  # int
+  resources: ""  # string
+  securityContext: ""  # string
+  servers: ""  # string
+  services: ""  # string
+  startupProbe: ""  # string
+  suspend: ""  # string
+  tolerations: ""  # string
+  updateStrategy: ""  # string
+
+# Maxscalegalera Configuration
+maxscaleGalera:
+  admin:
+    guiEnabled: ""  # string
+    port: 1  # int
+  auth:
+    generate: ""  # string
+  config: ""  # string
+  connection:
+    port: 1  # int
+    secretName: ""  # string
+  guiKubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  kubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  mariaDbRef:
+    name: ""  # string
+  metrics:
+    enabled: true  # bool
+  monitor: ""  # string
+  name: ""  # string
+  replicas: 1  # int
+  requeueInterval: ""  # string
+  services: ""  # string
+
+# Maxscalegaleratls Configuration
+maxscaleGaleraTls:
+  admin:
+    guiEnabled: ""  # string
+    port: 1  # int
+  auth:
+    generate: ""  # string
+  connection:
+    port: 1  # int
+    secretName: ""  # string
+  guiKubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  kubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  mariaDbRef:
+    name: ""  # string
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+  replicas: 1  # int
+  tls:
+    enabled: true  # bool
+
+# Maxscalegaleratlscertmanager Configuration
+maxscaleGaleraTlsCertManager:
+  admin:
+    guiEnabled: ""  # string
+    port: 1  # int
+  auth:
+    generate: ""  # string
+  connection:
+    port: 1  # int
+    secretName: ""  # string
+  guiKubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  kubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  mariaDbRef:
+    name: ""  # string
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+  replicas: 1  # int
+  tls:
+    adminCertIssuerRef:
+      kind: ""  # string
+      name: ""  # string
+    enabled: true  # bool
+    listenerCertIssuerRef:
+      kind: ""  # string
+      name: ""  # string
+
+# Maxscalegaleratlscertmanagerintermediateca Configuration
+maxscaleGaleraTlsCertManagerIntermediateCa:
+  admin:
+    guiEnabled: ""  # string
+    port: 1  # int
+  auth:
+    generate: ""  # string
+  connection:
+    port: 1  # int
+    secretName: ""  # string
+  guiKubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  kubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  mariaDbRef:
+    name: ""  # string
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+  replicas: 1  # int
+  tls:
+    adminCASecretRef:
+      name: ""  # string
+    adminCertIssuerRef:
+      kind: ""  # string
+      name: ""  # string
+    enabled: true  # bool
+    listenerCASecretRef:
+      name: ""  # string
+    listenerCertIssuerRef:
+      kind: ""  # string
+      name: ""  # string
+
+# Maxscalegaleratlsmanual Configuration
+maxscaleGaleraTlsManual:
+  admin:
+    guiEnabled: ""  # string
+    port: 1  # int
+  auth:
+    generate: ""  # string
+  connection:
+    port: 1  # int
+    secretName: ""  # string
+  guiKubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  kubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  mariaDbRef:
+    name: ""  # string
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+  replicas: 1  # int
+  tls:
+    adminCASecretRef:
+      name: ""  # string
+    adminCertSecretRef:
+      name: ""  # string
+    enabled: true  # bool
+    listenerCASecretRef:
+      name: ""  # string
+    listenerCertSecretRef:
+      name: ""  # string
+    serverCASecretRef:
+      name: ""  # string
+    serverCertSecretRef:
+      name: ""  # string
+    verifyPeerCertificate: ""  # string
+    verifyPeerHost: ""  # string
+
+# Maxscalereplication Configuration
+maxscaleReplication:
+  admin:
+    guiEnabled: ""  # string
+    port: 1  # int
+  auth:
+    generate: ""  # string
+  config: ""  # string
+  connection:
+    port: 1  # int
+    secretName: ""  # string
+  guiKubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  kubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  mariaDbRef:
+    name: ""  # string
+  metrics:
+    enabled: true  # bool
+  monitor: ""  # string
+  name: ""  # string
+  replicas: 1  # int
+  requeueInterval: ""  # string
+  services: ""  # string
+
+# Maxscalereplicationtls Configuration
+maxscaleReplicationTls:
+  admin:
+    guiEnabled: ""  # string
+    port: 1  # int
+  auth:
+    generate: ""  # string
+  connection:
+    port: 1  # int
+    secretName: ""  # string
+  guiKubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  kubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  mariaDbRef:
+    name: ""  # string
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+  replicas: 1  # int
+  tls:
+    enabled: true  # bool
+
+# Maxscalereplicationtlscertmanager Configuration
+maxscaleReplicationTlsCertManager:
+  admin:
+    guiEnabled: ""  # string
+    port: 1  # int
+  auth:
+    generate: ""  # string
+  connection:
+    port: 1  # int
+    secretName: ""  # string
+  guiKubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  kubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  mariaDbRef:
+    name: ""  # string
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+  replicas: 1  # int
+  tls:
+    adminCertIssuerRef:
+      kind: ""  # string
+      name: ""  # string
+    enabled: true  # bool
+    listenerCertIssuerRef:
+      kind: ""  # string
+      name: ""  # string
+
+# Maxscalereplicationtlsmanual Configuration
+maxscaleReplicationTlsManual:
+  admin:
+    guiEnabled: ""  # string
+    port: 1  # int
+  auth:
+    generate: ""  # string
+  connection:
+    port: 1  # int
+    secretName: ""  # string
+  guiKubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  kubernetesService:
+    annotations:
+      metallbLoadBalancerIP: ""  # string
+    type: ""  # string
+  mariaDbRef:
+    name: ""  # string
+  metrics:
+    enabled: true  # bool
+  name: ""  # string
+  replicas: 1  # int
+  tls:
+    adminCASecretRef:
+      name: ""  # string
+    adminCertSecretRef:
+      name: ""  # string
+    enabled: true  # bool
+    listenerCASecretRef:
+      name: ""  # string
+    listenerCertSecretRef:
+      name: ""  # string
+    replicationSSLEnabled: ""  # string
+    serverCASecretRef:
+      name: ""  # string
+    serverCertSecretRef:
+      name: ""  # string
+    verifyPeerCertificate: ""  # string
+    verifyPeerHost: ""  # string
+
+# Persistence Configuration
+persistence:
+  storageClass: ""  # string
+
+# Readinessprobe Configuration
+readinessProbe:
+  initialDelaySeconds: ""  # string
+  periodSeconds: ""  # string
+
+# Resources Configuration
+resources:
+  limits:
+    cpu: 1  # int
+    memory: 1  # int
+  requests:
+    cpu: 1  # int
+    memory: 1  # int
+
+# Restore Configuration
+restore:
+  affinity:
+    antiAffinityEnabled: ""  # string
+  args: ""  # string
+  backupRefName: ""  # string
+  inheritMetadata:
+    annotations: ""  # string
+  mariaDbRefName: ""  # string
+  podMetadata:
+    labels: ""  # string
+  resources:
+    limits:
+      cpu: 1  # int
+      memory: 1  # int
+    requests:
+      cpu: 1  # int
+      memory: 1  # int
+  serviceAccountName: ""  # string
+
+# Restores3 Configuration
+restoreS3:
+  mariaDbRefName: ""  # string
+  s3:
+    accessKeyIdSecretKeyRef:
+      key: ""  # string
+      name: ""  # string
+    bucket: ""  # string
+    endpoint: ""  # string
+    prefix: ""  # string
+    region: ""  # string
+    secretAccessKeySecretKeyRef:
+      key: ""  # string
+      name: ""  # string
+    tls:
+      caSecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      enabled: true  # bool
+  targetRecoveryTime: ""  # string
+
+# Restores3staging Configuration
+restoreS3Staging:
+  mariaDbRefName: ""  # string
+  s3:
+    accessKeyIdSecretKeyRef:
+      key: ""  # string
+      name: ""  # string
+    bucket: ""  # string
+    endpoint: ""  # string
+    prefix: ""  # string
+    region: ""  # string
+    secretAccessKeySecretKeyRef:
+      key: ""  # string
+      name: ""  # string
+    tls:
+      caSecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      enabled: true  # bool
+  stagingStorage:
+    persistentVolumeClaim:
+      accessModes: ""  # string
+      resources:
+        requests:
+          storage: ""  # string
+
+# Restorespecificdatabase Configuration
+restoreSpecificDatabase:
+  database: ""  # string
+  mariaDbRefName: ""  # string
+  s3:
+    accessKeyIdSecretKeyRef:
+      key: ""  # string
+      name: ""  # string
+    bucket: ""  # string
+    endpoint: ""  # string
+    prefix: ""  # string
+    region: ""  # string
+    secretAccessKeySecretKeyRef:
+      key: ""  # string
+      name: ""  # string
+    tls:
+      caSecretKeyRef:
+        key: ""  # string
+        name: ""  # string
+      enabled: true  # bool
+
+# Restoretargetrecoverytime Configuration
+restoreTargetRecoveryTime:
+  backupRef: ""  # string
+  mariaDbRefName: ""  # string
+  targetRecoveryTime: ""  # string
+
+# Service Configuration
+service:
+  port: 1  # int
+
+# User Configuration
+user:
+  cleanupPolicy: ""  # string
+  host: ""  # string
+  mariaDbRefName: ""  # string
+  maxUserConnections: ""  # string
+  name: ""  # string
+  passwordSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  requeueInterval: ""  # string
+  retryInterval: ""  # string
+
+# Userpasswordhash Configuration
+userPasswordHash:
+  host: ""  # string
+  mariaDbRefName: ""  # string
+  name: ""  # string
+  passwordHashSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+
+# Userpasswordplugin Configuration
+userPasswordPlugin:
+  host: ""  # string
+  mariaDbRefName: ""  # string
+  name: ""  # string
+  pluginArgSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+  pluginNameSecretKeyRef:
+    key: ""  # string
+    name: ""  # string
+
+# Usertls Configuration
+userTls:
+  host: ""  # string
+  mariaDbRefName: ""  # string
+  name: ""  # string
+  require:
+    issuer: ""  # string
+    subject: ""  # string
+  username: ""  # string

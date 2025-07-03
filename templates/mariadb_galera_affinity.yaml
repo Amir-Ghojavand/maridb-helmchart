@@ -36,9 +36,9 @@ spec:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
         - matchExpressions:
-          - key: {{ .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions[0].key | quote }}
-            operator: {{ .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions[0].operator | quote }}
-          - key: {{ .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions[1].key | quote }}
-            operator: {{ .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions[1].operator | quote }}
+          - key: {{ index .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions 0 "key" | quote }}
+            operator: {{ index .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions 0 "operator" | quote }}
+          - key: {{ index .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions 1 "key" | quote }}
+            operator: {{ index .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions 1 "operator" | quote }}
             values:
-              - {{ .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions[1].values[0] | quote }}
+              - {{ index .Values.mariadbGaleraAffinity.affinity.nodeAffinity.matchExpressions 1 "values" 0 | quote }}

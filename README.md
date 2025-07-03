@@ -69,7 +69,7 @@ backup:
 - Use secrets for all passwords and sensitive data
 - Use `values.yaml` for GitOps and reproducibility
 - Enable ServiceMonitor for Prometheus integration
-- Use PVCs or S3 for production backups
+- Use PVCs and S3 for production backups
 - Review and adjust resource requests/limits for your environment
 
 ## References

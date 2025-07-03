@@ -12,7 +12,7 @@ spec:
     name: {{ .Values.user.passwordSecretKeyRef.name | quote }}
     key: {{ .Values.user.passwordSecretKeyRef.key | quote }}
   maxUserConnections: {{ .Values.user.maxUserConnections | default 10 }}
-  host: {{ .Values.user.host | default '"%"' }}
+  host: {{ .Values.user.host | default "%" }}
   cleanupPolicy: {{ .Values.user.cleanupPolicy | default "Delete" }}
   requeueInterval: {{ .Values.user.requeueInterval | default "30s" }}
   retryInterval: {{ .Values.user.retryInterval | default "5s" }}

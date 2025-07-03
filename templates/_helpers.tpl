@@ -13,7 +13,7 @@ Common annotations for all resources
 {{- if .Values.annotations }}
 {{- toYaml .Values.annotations | nindent 4 }}
 {{- end }}
-{{- end -}}
+{{- end -}}prob
 
 {{/*
 Generate the full name of the resource

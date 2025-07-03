@@ -6,18 +6,18 @@ metadata:
     {{- include "mariadb.labels" . | nindent 4 }}
 spec:
   initContainers:
-    - name: {{ .Values.mariadbInitAndSidecar.initContainers[0].name | quote }}
-      image: {{ .Values.mariadbInitAndSidecar.initContainers[0].image | quote }}
+    - name: {{ index .Values.mariadbInitAndSidecar.initContainers 0 "name" | quote }}
+      image: {{ index .Values.mariadbInitAndSidecar.initContainers 0 "image" | quote }}
       command:
         - /bin/sh
         - -c
-        - {{ .Values.mariadbInitAndSidecar.initContainers[0].command[2] | quote }}
+        - {{ index .Values.mariadbInitAndSidecar.initContainers 0 "command" 2 | quote }}
       env:
         - name: MY_ENV
-          value: {{ .Values.mariadbInitAndSidecar.initContainers[0].env[0].value | quote }}
+          value: {{ index .Values.mariadbInitAndSidecar.initContainers 0 "env" 0 "value" | quote }}
   sidecarContainers:
-    - name: {{ .Values.mariadbInitAndSidecar.sidecarContainers[0].name | quote }}
-      image: {{ .Values.mariadbInitAndSidecar.sidecarContainers[0].image | quote }}
+    - name: {{ index .Values.mariadbInitAndSidecar.sidecarContainers 0 "name" | quote }}
+      image: {{ index .Values.mariadbInitAndSidecar.sidecarContainers 0 "image" | quote }}
       args:
         - sleep
         - infinity
@@ -25,28 +25,28 @@ spec:
         - name: INSTANCE_NAME
           valueFrom:
             fieldRef:
-              fieldPath: {{ .Values.mariadbInitAndSidecar.sidecarContainers[0].env[0].valueFrom.fieldRef.fieldPath | quote }}
+              fieldPath: {{ index .Values.mariadbInitAndSidecar.sidecarContainers 0 "env" 0 "valueFrom" "fieldRef" "fieldPath" | quote }}
         - name: MARIADB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.mariadbInitAndSidecar.sidecarContainers[0].env[1].valueFrom.secretKeyRef.name | quote }}
-              key: {{ .Values.mariadbInitAndSidecar.sidecarContainers[0].env[1].valueFrom.secretKeyRef.key | quote }}
+              name: {{ index .Values.mariadbInitAndSidecar.sidecarContainers 0 "env" 1 "valueFrom" "secretKeyRef" "name" | quote }}
+              key: {{ index .Values.mariadbInitAndSidecar.sidecarContainers 0 "env" 1 "valueFrom" "secretKeyRef" "key" | quote }}
   volumes:
     - name: tmp
       emptyDir:
-        sizeLimit: {{ .Values.mariadbInitAndSidecar.volumes[0].emptyDir.sizeLimit | default "100Mi" | quote }}
+        sizeLimit: {{ index .Values.mariadbInitAndSidecar.volumes 0 "emptyDir" "sizeLimit" | default "100Mi" | quote }}
     - name: mariadb-secret
       secret:
-        secretName: {{ .Values.mariadbInitAndSidecar.volumes[1].secret.secretName | quote }}
+        secretName: {{ index .Values.mariadbInitAndSidecar.volumes 1 "secret" "secretName" | quote }}
     - name: mariadb-configmap
       configMap:
-        name: {{ .Values.mariadbInitAndSidecar.volumes[2].configMap.name | quote }}
+        name: {{ index .Values.mariadbInitAndSidecar.volumes 2 "configMap" "name" | quote }}
   volumeMounts:
     - name: tmp
-      mountPath: {{ .Values.mariadbInitAndSidecar.volumeMounts[0].mountPath | default "/tmp" | quote }}
+      mountPath: {{ index .Values.mariadbInitAndSidecar.volumeMounts 0 "mountPath" | default "/tmp" | quote }}
     - name: mariadb-secret
-      mountPath: {{ .Values.mariadbInitAndSidecar.volumeMounts[1].mountPath | default "/mariadb-secret" | quote }}
+      mountPath: {{ index .Values.mariadbInitAndSidecar.volumeMounts 1 "mountPath" | default "/mariadb-secret" | quote }}
     - name: mariadb-configmap
-      mountPath: {{ .Values.mariadbInitAndSidecar.volumeMounts[2].mountPath | default "/mariadb-configmap" | quote }}
+      mountPath: {{ index .Values.mariadbInitAndSidecar.volumeMounts 2 "mountPath" | default "/mariadb-configmap" | quote }}
   storage:
     size: {{ .Values.mariadbInitAndSidecar.storage.size | default "1Gi" }}

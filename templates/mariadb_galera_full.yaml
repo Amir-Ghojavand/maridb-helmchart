@@ -127,9 +127,9 @@ spec:
   affinity:
     antiAffinityEnabled: {{ .Values.mariadbGaleraFull.affinity.antiAffinityEnabled | default true }}
   tolerations:
-    - key: {{ .Values.mariadbGaleraFull.tolerations[0].key | quote }}
-      operator: {{ .Values.mariadbGaleraFull.tolerations[0].operator | quote }}
-      effect: {{ .Values.mariadbGaleraFull.tolerations[0].effect | quote }}
+    - key: {{ index .Values.mariadbGaleraFull.tolerations 0 "key" | quote }}
+      operator: {{ index .Values.mariadbGaleraFull.tolerations 0 "operator" | quote }}
+      effect: {{ index .Values.mariadbGaleraFull.tolerations 0 "effect" | quote }}
   podDisruptionBudget:
     maxUnavailable: {{ .Values.mariadbGaleraFull.podDisruptionBudget.maxUnavailable | default "33%" }}
   updateStrategy:

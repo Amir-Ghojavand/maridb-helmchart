@@ -9,4 +9,4 @@ spec:
   require:
     issuer: {{ .Values.userTls.require.issuer | quote }}
     subject: {{ .Values.userTls.require.subject | quote }}
-  host: {{ .Values.userTls.host | default '"%"' }}
+  host: {{ .Values.userTls.host | default "%" }}
