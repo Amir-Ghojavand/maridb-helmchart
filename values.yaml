@@ -2,6 +2,7 @@ annotations: ""  # string
 
 # Backup Configuration
 backup:
+  enable: false  # bool
   affinity:
     antiAffinityEnabled: ""  # string
   args:
@@ -34,6 +35,7 @@ backup:
 
 # Backupnfs Configuration
 backupNfs:
+  enable: false  # bool
   mariaDbRefName: ""  # string
   storage:
     volume:
@@ -43,6 +45,7 @@ backupNfs:
 
 # Backupretention Configuration
 backupRetention:
+  enable: false  # bool
   mariaDbRefName: ""  # string
   maxRetention: ""  # string
   storage:
@@ -54,6 +57,7 @@ backupRetention:
 
 # Backups3 Configuration
 backupS3:
+  enable: false  # bool
   compression: ""  # string
   mariaDbRefName: ""  # string
   maxRetention: ""  # string
@@ -77,6 +81,7 @@ backupS3:
 
 # Backups3staging Configuration
 backupS3Staging:
+  enable: false  # bool
   compression: ""  # string
   mariaDbRefName: ""  # string
   maxRetention: ""  # string
@@ -106,6 +111,7 @@ backupS3Staging:
 
 # Backupscheduled Configuration
 backupScheduled:
+  enable: false  # bool
   affinity:
     antiAffinityEnabled: ""  # string
   args: ""  # string
@@ -148,6 +154,7 @@ backupScheduled:
 
 # Backupspecificdatabases Configuration
 backupSpecificDatabases:
+  enable: false  # bool
   databases: ""  # string
   mariaDbRefName: ""  # string
   maxRetention: ""  # string
@@ -199,6 +206,7 @@ connection:
 
 # Connectioncustomdsn Configuration
 connectionCustomDsn:
+  enable: false  # bool
   database: ""  # string
   healthCheck:
     interval: ""  # string
@@ -228,6 +236,7 @@ connectionCustomDsn:
 
 # Connectionmaxscale Configuration
 connectionMaxscale:
+  enable: false  # bool
   connection:
     healthCheckInterval: ""  # string
     maxScaleRefName: ""  # string
@@ -242,6 +251,7 @@ connectionMaxscale:
 
 # Connectionmaxscaletls Configuration
 connectionMaxscaleTls:
+  enable: false  # bool
   connection:
     healthCheckInterval: ""  # string
     maxScaleRefName: ""  # string
@@ -266,6 +276,7 @@ connectionMaxscaleTls:
 
 # Connectiontls Configuration
 connectionTls:
+  enable: false  # bool
   connection:
     healthCheckInterval: ""  # string
     mariaDbRefName: ""  # string
@@ -321,6 +332,7 @@ livenessProbe:
 
 # Mariadb Configuration
 mariadb:
+  enable: true  # bool
   characterSetServer: ""  # string
   collationServer: ""  # string
   database: ""  # string
@@ -376,6 +388,7 @@ mariadbConnection:
 
 # Mariadbfrombackup Configuration
 mariadbFromBackup:
+  enable: false  # bool
   bootstrapFrom:
     backupRef:
       name: ""  # string
@@ -399,6 +412,7 @@ mariadbFromBackup:
 
 # Mariadbfrombackupscheduled Configuration
 mariadbFromBackupScheduled:
+  enable: false  # bool
   bootstrapFrom:
     backupRef:
       name: ""  # string
@@ -422,6 +436,7 @@ mariadbFromBackupScheduled:
 
 # Mariadbfromnfs Configuration
 mariadbFromNfs:
+  enable: false  # bool
   bootstrapFrom:
     restoreJob:
       args:
@@ -445,6 +460,7 @@ mariadbFromNfs:
 
 # Mariadbfrompvc Configuration
 mariadbFromPvc:
+  enable: false  # bool
   bootstrapFrom:
     restoreJob:
       args:
@@ -467,6 +483,7 @@ mariadbFromPvc:
 
 # Mariadbfroms3 Configuration
 mariadbFromS3:
+  enable: false  # bool
   bootstrapFrom:
     restoreJob:
       args:
@@ -579,6 +596,7 @@ mariadbFull:
 
 # Mariadbgaleraaffinity Configuration
 mariadbGaleraAffinity:
+  enable: false  # bool
   affinity:
     antiAffinityEnabled: ""  # string
     nodeAffinity:
@@ -611,6 +629,7 @@ mariadbGaleraAffinity:
 
 # Mariadbgalerafroms3 Configuration
 mariadbGaleraFromS3:
+  enable: false  # bool
   bootstrapFrom:
     restoreJob:
       args:
@@ -680,6 +699,7 @@ mariadbGaleraFromS3:
 
 # Mariadbgalerafull Configuration
 mariadbGaleraFull:
+  enable: true  # bool
   affinity:
     antiAffinityEnabled: ""  # string
   connection:
@@ -832,6 +852,7 @@ mariadbGaleraFull:
 
 # Mariadbgaleramaxscale Configuration
 mariadbGaleraMaxscale:
+  enable: false  # bool
   database: ""  # string
   galera:
     enabled: true  # bool
@@ -882,6 +903,7 @@ mariadbGaleraMaxscale:
 
 # Mariadbgaleraproduction Configuration
 mariadbGaleraProduction:
+  enable: false  # bool
   affinity:
     antiAffinityEnabled: ""  # string
   galera:
@@ -924,6 +946,7 @@ mariadbGaleraProduction:
 
 # Mariadbgaleratls Configuration
 mariadbGaleraTls:
+  enable: false  # bool
   database: ""  # string
   galera:
     enabled: true  # bool
@@ -960,6 +983,7 @@ mariadbGaleraTls:
 
 # Mariadbgaleratlsbringyourca Configuration
 mariadbGaleraTlsBringYourCa:
+  enable: false  # bool
   database: ""  # string
   galera:
     enabled: true  # bool
@@ -1000,6 +1024,7 @@ mariadbGaleraTlsBringYourCa:
 
 # Mariadbgaleratlscertmanager Configuration
 mariadbGaleraTlsCertManager:
+  enable: false  # bool
   database: ""  # string
   galera:
     enabled: true  # bool
@@ -1042,6 +1067,7 @@ mariadbGaleraTlsCertManager:
 
 # Mariadbgaleratlsmanual Configuration
 mariadbGaleraTlsManual:
+  enable: false  # bool
   database: ""  # string
   galera:
     enabled: true  # bool
@@ -1086,6 +1112,7 @@ mariadbGaleraTlsManual:
 
 # Mariadbinitandsidecar Configuration
 mariadbInitAndSidecar:
+  enable: true  # bool
   initContainers:
     - name: "init-mariadb"
       image: "docker-registry1.mariadb.com/library/mariadb:11.4.5"
@@ -1134,6 +1161,7 @@ mariadbInitAndSidecar:
 
 # Mariadbinitmariabackup Configuration
 mariadbInitMariabackup:
+  enable: false  # bool
   initContainers:
     - image: "docker-registry1.mariadb.com/library/mariadb:11.4.5"  # string
   storage:
@@ -1148,6 +1176,7 @@ mariadbInitMariabackup:
 
 # Mariadbmetadata Configuration
 mariadbMetadata:
+  enable: false  # bool
   inheritMetadata:
     annotations:
       databaseMyorgIo: ""  # string
@@ -1163,6 +1192,7 @@ mariadbMetadata:
 
 # Mariadbmetrics Configuration
 mariadbMetrics:
+  enable: true  # bool
   metrics:
     enabled: true  # bool
   name: ""  # string
@@ -1208,6 +1238,7 @@ mariadbMetricsFull:
 
 # Mariadbminimal Configuration
 mariadbMinimal:
+  enable: false  # bool
   name: ""  # string
   rootEmptyPassword: ""  # string
   storage:
@@ -1215,6 +1246,7 @@ mariadbMinimal:
 
 # Mariadbmycnf Configuration
 mariadbMyCnf:
+  enable: false  # bool
   myCnf: ""  # string
   name: ""  # string
   storage:
@@ -1222,6 +1254,7 @@ mariadbMyCnf:
 
 # Mariadbpasswordplugin Configuration
 mariadbPasswordPlugin:
+  enable: false  # bool
   connection:
     healthCheck:
       interval: ""  # string
@@ -1259,6 +1292,7 @@ mariadbPasswordPlugin:
 
 # Mariadbprobes Configuration
 mariadbProbes:
+  enable: false  # bool
   livenessProbe:
     periodSeconds: ""  # string
     timeoutSeconds: ""  # string
@@ -1275,6 +1309,7 @@ mariadbProbes:
 
 # Mariadbreplication Configuration
 mariadbReplication:
+  enable: false  # bool 
   metrics:
     enabled: true  # bool
   name: ""  # string
@@ -1301,6 +1336,7 @@ mariadbReplication:
 
 # Mariadbreplicationfull Configuration
 mariadbReplicationFull:
+  enable: false  # bool
   affinity:
     antiAffinityEnabled: ""  # string
   connection:
@@ -1413,6 +1449,7 @@ mariadbReplicationFull:
 
 # Mariadbreplicationmaxscale Configuration
 mariadbReplicationMaxscale:
+  enable: false  # bool
   database: ""  # string
   maxScale:
     connection:
@@ -1461,6 +1498,7 @@ mariadbReplicationMaxscale:
 
 # Mariadbreplicationtls Configuration
 mariadbReplicationTls:
+  enable: false  # bool
   database: ""  # string
   metrics:
     enabled: true  # bool
@@ -1495,6 +1533,7 @@ mariadbReplicationTls:
 
 # Mariadbreplicationtlscertmanager Configuration
 mariadbReplicationTlsCertManager:
+  enable: false  # bool
   database: ""  # string
   metrics:
     enabled: true  # bool
@@ -1535,6 +1574,7 @@ mariadbReplicationTlsCertManager:
 
 # Mariadbreplicationtlsmanual Configuration
 mariadbReplicationTlsManual:
+  enable: false  # bool
   database: ""  # string
   metrics:
     enabled: true  # bool
@@ -1577,6 +1617,7 @@ mariadbReplicationTlsManual:
 
 # Mariadbsuspend Configuration
 mariadbSuspend:
+  enable: false  # bool
   name: ""  # string
   storage:
     size: ""  # string
@@ -1584,6 +1625,7 @@ mariadbSuspend:
 
 # Mariadbtls Configuration
 mariadbTls:
+  enable: false  # bool
   metrics:
     enabled: true  # bool
   myCnf: ""  # string
@@ -1603,6 +1645,7 @@ mariadbTls:
 
 # Mariadbtlsmanual Configuration
 mariadbTlsManual:
+  enable: false  # bool
   metrics:
     enabled: true  # bool
   myCnf: ""  # string
@@ -1630,6 +1673,7 @@ mariadbTlsManual:
 
 # Maxscale Configuration
 maxscale:
+  enable: false  # bool
   guiKubernetesService:
     annotations:
       metallbLoadBalancerIP: ""  # string
@@ -1646,6 +1690,7 @@ maxscale:
 
 # Maxscaleexternal Configuration
 maxscaleExternal:
+  enable: false  # bool
   admin:
     port: 1  # int
   auth: ""  # string
@@ -1668,6 +1713,7 @@ maxscaleExternal:
 
 # Maxscalefull Configuration
 maxscaleFull:
+  enable: false  # bool
   admin: ""  # string
   affinity: ""  # string
   auth: ""  # string
@@ -1708,6 +1754,7 @@ maxscaleFull:
 
 # Maxscalegalera Configuration
 maxscaleGalera:
+  enable: false  # bool
   admin:
     guiEnabled: ""  # string
     port: 1  # int
@@ -1737,6 +1784,7 @@ maxscaleGalera:
 
 # Maxscalegaleratls Configuration
 maxscaleGaleraTls:
+  enable: false  # bool
   admin:
     guiEnabled: ""  # string
     port: 1  # int
@@ -1764,6 +1812,7 @@ maxscaleGaleraTls:
 
 # Maxscalegaleratlscertmanager Configuration
 maxscaleGaleraTlsCertManager:
+  enable: false  # bool
   admin:
     guiEnabled: ""  # string
     port: 1  # int
@@ -1797,6 +1846,7 @@ maxscaleGaleraTlsCertManager:
 
 # Maxscalegaleratlscertmanagerintermediateca Configuration
 maxscaleGaleraTlsCertManagerIntermediateCa:
+  enable: false  # bool
   admin:
     guiEnabled: ""  # string
     port: 1  # int
@@ -1834,6 +1884,7 @@ maxscaleGaleraTlsCertManagerIntermediateCa:
 
 # Maxscalegaleratlsmanual Configuration
 maxscaleGaleraTlsManual:
+  enable: false  # bool
   admin:
     guiEnabled: ""  # string
     port: 1  # int
@@ -1875,6 +1926,7 @@ maxscaleGaleraTlsManual:
 
 # Maxscalereplication Configuration
 maxscaleReplication:
+  enable: false  # bool
   admin:
     guiEnabled: ""  # string
     port: 1  # int
@@ -1904,6 +1956,7 @@ maxscaleReplication:
 
 # Maxscalereplicationtls Configuration
 maxscaleReplicationTls:
+  enable: false  # bool
   admin:
     guiEnabled: ""  # string
     port: 1  # int
@@ -1931,6 +1984,7 @@ maxscaleReplicationTls:
 
 # Maxscalereplicationtlscertmanager Configuration
 maxscaleReplicationTlsCertManager:
+  enable: false  # bool
   admin:
     guiEnabled: ""  # string
     port: 1  # int
@@ -1964,6 +2018,7 @@ maxscaleReplicationTlsCertManager:
 
 # Maxscalereplicationtlsmanual Configuration
 maxscaleReplicationTlsManual:
+  enable: false  # bool
   admin:
     guiEnabled: ""  # string
     port: 1  # int
@@ -2004,26 +2059,27 @@ maxscaleReplicationTlsManual:
     verifyPeerCertificate: ""  # string
     verifyPeerHost: ""  # string
 
-# Persistence Configuration
-persistence:
-  storageClass: ""  # string
+# # Persistence Configuration
+# persistence:
+#   storageClass: ""  # string
 
-# Readinessprobe Configuration
-readinessProbe:
-  initialDelaySeconds: ""  # string
-  periodSeconds: ""  # string
+# # Readinessprobe Configuration
+# readinessProbe:
+#   initialDelaySeconds: ""  # string
+#   periodSeconds: ""  # string
 
-# Resources Configuration
-resources:
-  limits:
-    cpu: 1  # int
-    memory: 1  # int
-  requests:
-    cpu: 1  # int
-    memory: 1  # int
+# # Resources Configuration
+# resources:
+#   limits:
+#     cpu: 1  # int
+#     memory: 1  # int
+#   requests:
+#     cpu: 1  # int
+#     memory: 1  # int
 
 # Restore Configuration
 restore:
+  enable: false  # bool
   affinity:
     antiAffinityEnabled: ""  # string
   args: ""  # string
@@ -2044,6 +2100,7 @@ restore:
 
 # Restores3 Configuration
 restoreS3:
+  enable: false  # bool
   mariaDbRefName: ""  # string
   s3:
     accessKeyIdSecretKeyRef:
@@ -2065,6 +2122,7 @@ restoreS3:
 
 # Restores3staging Configuration
 restoreS3Staging:
+  enable: false  # bool
   mariaDbRefName: ""  # string
   s3:
     accessKeyIdSecretKeyRef:
@@ -2091,6 +2149,7 @@ restoreS3Staging:
 
 # Restorespecificdatabase Configuration
 restoreSpecificDatabase:
+  enable: false  # bool
   database: ""  # string
   mariaDbRefName: ""  # string
   s3:
@@ -2112,16 +2171,18 @@ restoreSpecificDatabase:
 
 # Restoretargetrecoverytime Configuration
 restoreTargetRecoveryTime:
+  enable: false  # bool
   backupRef: ""  # string
   mariaDbRefName: ""  # string
   targetRecoveryTime: ""  # string
 
-# Service Configuration
-service:
-  port: 1  # int
+# # Service Configuration
+# service:
+#   port: 1  # int
 
 # User Configuration
 user:
+  enable: false  # bool
   cleanupPolicy: ""  # string
   host: ""  # string
   mariaDbRefName: ""  # string
@@ -2135,6 +2196,7 @@ user:
 
 # Userpasswordhash Configuration
 userPasswordHash:
+  enable: false  # bool
   host: ""  # string
   mariaDbRefName: ""  # string
   name: ""  # string
@@ -2144,6 +2206,7 @@ userPasswordHash:
 
 # Userpasswordplugin Configuration
 userPasswordPlugin:
+  enable: false  # bool
   host: ""  # string
   mariaDbRefName: ""  # string
   name: ""  # string
@@ -2156,6 +2219,7 @@ userPasswordPlugin:
 
 # Usertls Configuration
 userTls:
+  enable: false  # bool
   host: ""  # string
   mariaDbRefName: ""  # string
   name: ""  # string
